@@ -3,7 +3,9 @@ const dotenv = require("dotenv");
 const {invalidTokenCodeError,invalidTokenError}=require('../../ErrorHandler/Auth/AuthExceptions');
 const {RequiredFieldAbsent}=require('../../ErrorHandler/Validation/ValidationExceptions');
 const {ResourceNotFound}=require('../../ErrorHandler/Generic/GenericExceptions');
-const jwt=require("jsonwebtoken")
+const jwt=require("jsonwebtoken");
+const userService=require('../Services/AdminServices');
+
 
 dotenv.config();
 
@@ -21,11 +23,10 @@ module.exports.handleAuthTokenRequest = async (req, res,next) => {
       },
     });
     const userData= jwt.decode(token.data.id_token);
-    token.data['id_token'] = jwt.sign({
-                                    name: userData.name,
-                                    email: userData.email,
-                                    picture:userData.picture
-                                }, process.env.CLIENT_SECRET);
+    const userProfile=await userService.addOrUpdateUser({ name: userData.name,
+                                email: userData.email,
+                              picture:userData.picture});
+    token.data['id_token'] = jwt.sign({ name: userProfile.name,email: userProfile.email,picture:userProfile.picture,role:userProfile.role}, process.env.CLIENT_SECRET);
     return res.json(token['data']);
   } catch (err) {
   return next(new invalidTokenCodeError("Invalid code for token access request",401,err.response.data));
