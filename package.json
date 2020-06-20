@@ -1,0 +1,31 @@
+{
+  "name": "ttnd-buzz",
+  "version": "1.0.0",
+  "description": "A web application for TTN Digital Buzz.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "npm start",
+    "server": "node server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shefali360/TTND-BUZZ.git"
+  },
+  "author": "Shefali",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shefali360/TTND-BUZZ/issues"
+  },
+  "homepage": "https://github.com/Shefali360/TTND-BUZZ#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cors": "^2.8.5",
+    "custom-id": "^1.2.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.18",
+    "multer": "^1.4.2"
+  }
+}
