@@ -1,4 +1,4 @@
-const {ServerError} = require("../../ErrorHandler/Generic/GenericExceptions");
+const {ServerError,ActionNotAcceptable} = require("../../ErrorHandler/Generic/GenericExceptions");
 const buzzService=require('../Services/BuzzServices');
 
 module.exports.createBuzz = async(req, res,next) => {
@@ -20,18 +20,34 @@ module.exports.createBuzz = async(req, res,next) => {
   }
 };
 
-module.exports.getAll = async (req, res,next) => {
+module.exports.getBuzz = async (req, res,next) => {
   try {
     const limitCount=req.query.limit;
+    delete req.query.limit;
     const skipCount=req.query.skip;
+    delete req.query.skip;
     const email = req.data.email;
-    const response = await buzzService.getAll(email,Number(limitCount), Number(skipCount));
+    const response = await buzzService.getBuzz(email,req.query,Number(limitCount), Number(skipCount));
     res.send(response);
    
   } catch (err) {
     return next( new ServerError("Error",500));
   }
 };
+
+module.exports.updateBuzz=async(req,res,next)=>{
+  try{
+    if (req.body.likes || req.body.dislikes || req.body.liked || req.body.disliked) {
+      throw new ActionNotAcceptable(
+        ("This action is unacceptable", 406)
+      );
+    }
+    const buzz=await buzzService.updateBuzz(req.params,req.body);
+    res.send(buzz);
+  }catch(err){
+    next(err);
+  }
+}
 
 module.exports.updateLikes = async (req, res) => {
   try {
@@ -55,9 +71,8 @@ module.exports.updateDislikes = async (req, res) => {
 
 module.exports.delete = async (req, res) => {
   try {
-    const response = await buzzService.delete();
-    res.send(response);
-    
+    const response = await buzzService.delete(req.params);
+    res.send(response); 
   } catch (err) {
     res.status(500).send(err);
   }

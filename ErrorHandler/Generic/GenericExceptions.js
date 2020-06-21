@@ -18,4 +18,13 @@ class ServerError extends CustomExceptions {
     }
 }
 
-module.exports={ResourceNotFound,ServerError};
+
+class ActionNotAcceptable extends CustomExceptions {
+    constructor(message, responseCode, payload) {
+        super(message, error.actionNotAcceptable, responseCode, payload);
+        this.name = 'ActionNotAcceptableError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
+
+module.exports={ResourceNotFound,ServerError,ActionNotAcceptable};

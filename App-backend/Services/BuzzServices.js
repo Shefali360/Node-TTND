@@ -17,9 +17,10 @@ module.exports.createBuzz=async(data)=>{
 }
 }
 
-module.exports.getAll = async (email,limit,skip) => {
+module.exports.getBuzz = async (email,query,limit,skip) => {
   try{
     const pipeline=[
+        {$match:query},
         {
             $addFields: {
                 liked: { $in: [email, "$likedBy"] },
@@ -65,6 +66,20 @@ const allBuzz = await buzz.aggregate(pipeline).exec();
   console.log(err);
   }
 };
+
+module.exports.updateBuzz=async({id},updatedData)=>{
+    try {
+        const response = await buzz.findOneAndUpdate({_id:id},{$set:updatedData},{new:true,runValidators:true});
+        return response;
+}catch(err){
+    if (err.name === "ValidationError") {
+        throw new DataValidationFailed(err.message, 500);
+      } else {
+          console.log(err);
+        throw new ServerError("Error", 500);
+      }
+}
+}
 
 module.exports.updateLikes=async({id},email,reverse)=>{
   try {
@@ -116,7 +131,7 @@ module.exports.updateDislikes=async({id},email,reverse)=>{
   }
 }
 
-module.exports.delete= async () => {
-  const response = await buzz.deleteMany({});
+module.exports.delete= async ({id}) => {
+  const response = await buzz.deleteOne({_id:id});
   return response;
 };
