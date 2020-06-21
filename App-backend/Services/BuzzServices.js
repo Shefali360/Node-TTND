@@ -19,34 +19,50 @@ module.exports.createBuzz=async(data)=>{
 
 module.exports.getAll = async (email,limit,skip) => {
   try{
-  const allBuzz = await buzz.aggregate([
-    {
-        $addFields: {
-            liked: { $in: [email, "$likedBy"] },
-            disliked: { $in: [email, "$dislikedBy"] }
+    const pipeline=[
+        {
+            $addFields: {
+                liked: { $in: [email, "$likedBy"] },
+                disliked: { $in: [email, "$dislikedBy"] }
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"userId",
+                foreignField:"email",
+                as:"user"
+            }
+        },
+        {
+            $project: {
+                likedBy: 0,
+                dislikedBy: 0,
+                user: {
+                    email:0,
+                    role:0,
+                    department:0
+                }   
+            }
+        },
+        {
+            $sort: {
+                createdOn: -1
+            }
+        },
+        {
+            $skip: skip
         }
-    },
-    {
-        $project: {
-            likedBy: 0,
-            dislikedBy: 0
-        }
-    },
-    {
-        $sort: {
-            createdOn: -1
-        }
-    },
-    {
-        $skip: skip
-    },
-    {
-        $limit: limit
+    ];
+
+    if(limit){
+        pipeline.push({$limit:limit})
     }
-]).exec();
-  return allBuzz;}
+const allBuzz = await buzz.aggregate(pipeline).exec();
+  return allBuzz;
+}
   catch(err){
-  
+  console.log(err);
   }
 };
 

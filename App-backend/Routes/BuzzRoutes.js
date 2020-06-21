@@ -7,7 +7,7 @@ const imageUpload = multer({
   limits: {
     fileSize: 1024 * 1024 * 5,
   },
-  fileFilter: midware.imageFileFilter
+  fileFilter: midware.imageFileFilter,
 });
 router.get("/", midware.verifyTokenToGetUserData,buzz.getAll);
 router.post(
@@ -16,6 +16,7 @@ router.post(
   imageUpload.array("images"),
   buzz.createBuzz
 );
+router.patch("/update/:id",midware.verifyTokenToGetUserData,buzz.updateBuzz);
 router.patch("/like/:id",midware.verifyTokenToGetUserData, buzz.updateLikes);
 router.patch("/dislike/:id",midware.verifyTokenToGetUserData, buzz.updateDislikes);
 router.delete("/", buzz.delete);

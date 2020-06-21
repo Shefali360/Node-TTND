@@ -27,6 +27,7 @@ module.exports.getAll = async (req, res,next) => {
     const email = req.data.email;
     const response = await buzzService.getAll(email,Number(limitCount), Number(skipCount));
     res.send(response);
+   
   } catch (err) {
     return next( new ServerError("Error",500));
   }
