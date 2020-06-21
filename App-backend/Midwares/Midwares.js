@@ -87,21 +87,12 @@ module.exports.verifyTokenToGetUserData = async (req, res, next) => {
   }
 };
 
-module.exports.imageStorage = multer.diskStorage({
-  destination: function (req, files, callback) {
-    callback(null, "./Images/");
+module.exports.fileStorage=(destination)=>multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, destination);
   },
-  filename: function (req, files, callback) {
-    callback(null, new Date().toISOString() + files.originalname);
-  },
-});
-
-module.exports.fileStorage = multer.diskStorage({
-  destination: function (req, files, callback) {
-    callback(null, "./Attachments/");
-  },
-  filename: function (req, files, callback) {
-    callback(null, new Date().toISOString() + files.originalname);
+  filename: function (req, file, callback) {
+    callback(null, new Date().toISOString() + file.originalname);
   },
 });
 
@@ -117,6 +108,18 @@ module.exports.imageFileFilter = (req, files, callback) => {
   }
 };
 
+module.exports.fileFilter = (req, files, callback) => {
+  if (
+    files.mimetype === "image/jpeg" ||
+    files.mimetype === "image/png" ||
+    files.mimetype === "text/plain"||
+    files.mimetype==="application/pdf"
+  ) {
+    callback(null, true);
+  } else {
+    callback(new InvalidFileFormat("Please insert images only", 400), false);
+  }
+};
 module.exports.checkPrivileges = (role) => {
   return async(req, res, next) => {
     let samePrivilege = null;
@@ -154,6 +157,7 @@ module.exports.checkPrivileges = (role) => {
     }
   };
 };
+
 
 
 module.exports.checkAdminPrivileges = async (req, res, next) => {

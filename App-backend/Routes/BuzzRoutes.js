@@ -3,7 +3,7 @@ const midware = require("../Midwares/Midwares");
 const router = require("express").Router();
 const multer = require("multer");
 const imageUpload = multer({
-  storage: midware.imageStorage,
+  storage: midware.fileStorage('./Images/'),
   limits: {
     fileSize: 1024 * 1024 * 5,
   },
