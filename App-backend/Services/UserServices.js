@@ -5,7 +5,7 @@ const {DataValidationFailed}=require('../../ErrorHandler/Buzz/BuzzExceptions');
 module.exports.addOrUpdateUser=async(data)=>{
  try{
   const response=await users.findOneAndUpdate({email:data.email},
-    {$setOnInsert:data},{upsert:true,new:true,runValidators:true})
+    {$setOnInsert:data},{upsert:true,setDefaultsOnInsert: true ,new:true,runValidators:true});
   return response;
  } 
  catch(err){

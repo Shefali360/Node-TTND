@@ -11,6 +11,7 @@ const multer = require("multer");
 const {getAdmin}=require("../../App-backend/Services/AdminServices");
 const {UnauthorizedAccess}=require('../../ErrorHandler/Admin/AdminExceptions');
 const jwt=require("jsonwebtoken");
+const Role=require('../../Config/Config');
 
 module.exports.verifyTokenMiddleware = async (req, res, next) => {
   
@@ -117,6 +118,20 @@ module.exports.imageFileFilter = (req, files, callback) => {
     callback(new InvalidFileFormat("Please insert images only",400),false);
   }
 };
+
+module.exports.checkUserRole = async(role)=>{
+  async (req,res,next)=>{
+  try{ 
+    const userRole=req.data.role;
+    if(Role[userRole]>=Role[role]){
+        return next();
+    }else{
+     return next(new UnauthorizedAccess("You need admin privileges to access this data.",400));
+   }}catch(err){
+     return next(new ServerError("Error"), 500);
+   }
+  }
+}
 
 module.exports.checkAdminPrivileges= async (req,res,next)=>{
  try{ const userEmail=req.data.email;

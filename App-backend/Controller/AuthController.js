@@ -4,8 +4,8 @@ const {invalidTokenCodeError,invalidTokenError}=require('../../ErrorHandler/Auth
 const {RequiredFieldAbsent}=require('../../ErrorHandler/Validation/ValidationExceptions');
 const {ResourceNotFound}=require('../../ErrorHandler/Generic/GenericExceptions');
 const jwt=require("jsonwebtoken");
-const userService=require('../Services/AdminServices');
-
+const userService=require('../Services/UserServices');
+const userRole=require('../../Config/Config');
 
 dotenv.config();
 
@@ -23,10 +23,12 @@ module.exports.handleAuthTokenRequest = async (req, res,next) => {
       },
     });
     const userData= jwt.decode(token.data.id_token);
-    const userProfile=await userService.addOrUpdateUser({ name: userData.name,
+    const userProfile=await userService.addOrUpdateUser({ 
+                                name: userData.name,
                                 email: userData.email,
-                              picture:userData.picture});
-    token.data['id_token'] = jwt.sign({ name: userProfile.name,email: userProfile.email,picture:userProfile.picture,role:userProfile.role}, process.env.CLIENT_SECRET);
+                                picture:userData.picture});
+    const userRoleCode=userRole.roles[userProfile.role];
+    token.data['id_token'] = jwt.sign({ name: userProfile.name,email: userProfile.email,picture:userProfile.picture,role:userProfile.role,roleCode:userRoleCode}, process.env.CLIENT_SECRET);
     return res.json(token['data']);
   } catch (err) {
   return next(new invalidTokenCodeError("Invalid code for token access request",401,err.response.data));

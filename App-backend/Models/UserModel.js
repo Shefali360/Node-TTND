@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const role=require('../../Config/Config');
+const roleArray=Object.keys(role.roles);
 
 const usersSchema=new Schema({
     email:{
@@ -15,7 +17,7 @@ const usersSchema=new Schema({
     },
     role:{
         type:String,
-        enum:['SuperAdmin','Admin','User'],
+        enum:roleArray,
         default:'User'
     },
     picture:{

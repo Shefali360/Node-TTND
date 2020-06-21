@@ -1,18 +1,8 @@
-const usersService = require("../Services/UsersServices");
+const usersService = require("../Services/UserServices");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
 dotenv.config();
-
-module.exports.addOrUpdateUser = async (req, res, next) => {
-  const myuserdata = req.data;
-  try {
-    const response = await usersService.addOrUpdateUser(myuserdata);
-    res.send(response);
-  } catch (err) {
-    next(err);
-  }
-};
 
 module.exports.updateProfile = async (req, res, next) => {
   try {

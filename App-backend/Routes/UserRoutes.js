@@ -1,7 +1,7 @@
 const user = require("../../App-backend/Controller/UserController");
 const router = require("express").Router();
+// const midware = require("../Midwares/Midwares");
 
-router.post( "/",user.addOrUpdateUser);
 router.patch("/update-profile/:id",user.updateProfile);
 router.patch("/update-role/:id/:role", user.updateRole);
 router.get("/",user.getUsers);

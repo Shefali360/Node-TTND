@@ -6,6 +6,7 @@ module.exports.createAdmin = async (data) => {
   const adminRole = new admin(data);
   try {
     await adminRole.save();
+    console.log(adminRole);
     return adminRole;
   } catch (err) {
     if (err) {
