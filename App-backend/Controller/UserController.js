@@ -1,12 +1,17 @@
 const usersService = require("../Services/UserServices");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const {UnauthorizedAccess} = require("../../ErrorHandler/Admin/AdminExceptions");
 
 dotenv.config();
 
 module.exports.updateProfile = async (req, res, next) => {
   try {
-    const userProfile=await usersService.updateProfile(req.params, req.body);
+    if(req.body.email||req.body.role){
+      throw new UnauthorizedAccess(("Insufficient privileges to change email or role keys..",403));
+    }
+    const email=req.data.email;
+    const userProfile=await usersService.updateProfile(email,req.body);
     const id_token = jwt.sign(
       {
         name: userProfile.name,

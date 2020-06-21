@@ -17,9 +17,9 @@ module.exports.addOrUpdateUser=async(data)=>{
 }
 }
 
-module.exports.updateProfile=async(id,updatedData)=>{
+module.exports.updateProfile=async(email,updatedData)=>{
     try{
-        const update=await users.findByIdAndUpdate(id,{$set:updatedData},{new:true,runValidators:true});
+        const update=await users.findOneAndUpdate({email:email},{$set:updatedData},{new:true,runValidators:true});
         return update;
     }
     catch(err){

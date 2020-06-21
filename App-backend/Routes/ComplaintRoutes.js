@@ -9,7 +9,6 @@ const fileUpload = multer({
   },
 });
 
-
 router.post(
     "/",
     midware.verifyTokenToGetUserData,
