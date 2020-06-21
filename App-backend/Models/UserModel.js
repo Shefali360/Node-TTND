@@ -25,7 +25,7 @@ const usersSchema=new Schema({
         data:Buffer
     },
     department:{
-        type:String
+        type:mongoose.Types.ObjectId
     },
     dob:{
         type:Date

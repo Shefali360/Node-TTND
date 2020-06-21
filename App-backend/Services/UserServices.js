@@ -43,11 +43,11 @@ module.exports.updateProfile = async (email, updatedData) => {
   }
 };
 
-module.exports.updateRole = async (id, role) => {
+module.exports.updateRole = async (email,updatedData) => {
   try {
-    const update = await users.findByIdAndUpdate(
-      id,
-      { $set: { role: role } },
+    const update = await users.findOneAndUpdate(
+      {email:email},
+      { $set:updatedData },
       { new: true, runValidators: true }
     );
     return update;
@@ -55,6 +55,7 @@ module.exports.updateRole = async (id, role) => {
     if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
     } else {
+      console.log(err);
       throw new ServerError("Error", 500);
     }
   }
@@ -72,10 +73,10 @@ module.exports.getUsers = async (query, limit, skip) => {
   }
 };
 
-module.exports.deleteUser = async ({ id }) => {
+module.exports.deleteUser = async (email) => {
   try {
     const response = await users.deleteOne({
-      _id: id,
+      email:email,
     });
     return response;
   } catch (err) {
