@@ -7,7 +7,7 @@ const imageUpload = multer({
   limits: {
     fileSize: 1024 * 1024 * 5,
   },
-  fileFilter: midware.imageFileFilter,
+  fileFilter: midware.imageFileFilter
 });
 router.get("/", midware.verifyTokenToGetUserData,buzz.getAll);
 router.post(
