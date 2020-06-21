@@ -1,6 +1,7 @@
 const dept = require("../Models/DepartmentModel");
 const { ServerError } = require("../../ErrorHandler/Generic/GenericExceptions");
 const { DataValidationFailed } = require("../../ErrorHandler/Buzz/BuzzExceptions");
+const {DuplicateKey} = require('../../ErrorHandler/Validation/ValidationExceptions');
 
 module.exports.createDept=async(data)=>{
     const department=new dept(data);
@@ -12,6 +13,9 @@ module.exports.createDept=async(data)=>{
       if (err.name === 'ValidationError')
               {throw new DataValidationFailed(err.message, 500);}
       else
+      if(err.code===11000){
+        throw new DuplicateKey(err.message, 400);
+      }
               {throw new ServerError("Error",500);}
    
   }
@@ -31,6 +35,15 @@ module.exports.createDept=async(data)=>{
     }
   };
   
+module.exports.findDept=async(query)=>{
+  try{
+    const department=await dept.findOne(query);
+    return department;
+  }catch(err){
+    throw new ServerError("Error", 500);
+  
+  }
+}
 
 module.exports.delete = async ({ id }) => {
     try{

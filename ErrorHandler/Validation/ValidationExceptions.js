@@ -9,4 +9,12 @@ class RequiredFieldAbsent extends CustomExceptionTemplate {
     }
 }
 
-module.exports={RequiredFieldAbsent};
+class DuplicateKey extends CustomExceptionTemplate {
+    constructor(message, responseCode, payload) {
+        super(message,error.duplicateKeyError, responseCode, payload);
+        this.name = 'DuplicateKeyError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
+
+module.exports={RequiredFieldAbsent,DuplicateKey};

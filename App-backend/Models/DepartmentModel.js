@@ -9,6 +9,12 @@ const departmentSchema=new Schema({
     }
 })
 
+departmentSchema.pre('save', function(next) {
+    this.department=this.department.toLowerCase();
+    next();
+}
+  );
+
 const dept=mongoose.model("Department",departmentSchema);
 
 module.exports = dept;
