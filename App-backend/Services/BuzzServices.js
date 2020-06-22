@@ -36,11 +36,19 @@ module.exports.getBuzz = async (email,query,limit,skip) => {
             }
         },
         {
+            $set:{
+              user:{$arrayElemAt:['$user',0]}
+            }
+          },
+        {
             $project: {
                 likedBy: 0,
                 dislikedBy: 0,
                 user: {
-                    email:0,
+                    _id:0,
+                    __v:0,
+                    dob:0,
+                    phone:0,
                     role:0,
                     department:0
                 }   
