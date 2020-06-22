@@ -1,7 +1,42 @@
 const complaint  = require("../Models/ComplaintModel");
+const user=require('../Models/UserModel');
 const { ServerError } = require("../../ErrorHandler/Generic/GenericExceptions");
 const { DataValidationFailed } = require("../../ErrorHandler/Buzz/BuzzExceptions");
+const mongoose=require("mongoose");
 
+module.exports.assignAdmin=async(department)=>{
+  try{
+  let admin=await complaint.aggregate([
+   {$match:{department:new mongoose.Types.ObjectId(department)}},
+   {$group:{
+     _id:"$assignedTo",
+     count:{$sum:1}
+   }},
+   {$sort:{count:1}},
+   {$limit:1}
+  ]).exec();
+  console.log(admin);
+  if(admin.length>0){
+    return admin[0]._id;
+  }else if(admin.length===0){
+    admin=await user.findOne({
+      department,
+      role:'Admin'
+    });
+
+    if(!admin){
+      admin=await user.findOne({department,role:'SuperAdmin'});
+
+    }
+  return admin.email;
+  }
+    
+}catch(err){
+  console.log(err);
+  throw new ServerError("Error", 500);
+}
+
+}
 module.exports.createComplaint = async (data) => {
   const complaintData = new complaint(data);
   try {
