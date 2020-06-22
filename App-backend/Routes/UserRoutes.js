@@ -23,14 +23,14 @@ router.patch(
   user.updateProfilePicture
 )
 router.patch(
-  "/update-privileges",
+  "/update-privileges/:email",
   midware.verifyTokenToGetUserData,
   midware.checkPrivileges("SuperAdmin"),
-  user.updateRole
+  user.updatePrivileges
 );
 router.get("/", user.getUsers);
 router.delete(
-  "/",
+  "/:email",
   midware.verifyTokenToGetUserData,
   midware.checkPrivileges("SuperAdmin"),
   user.deleteUser

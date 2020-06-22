@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const role=require('../../Config/Config');
 const roleArray=Object.keys(role.roles);
-const departmentService=require('../Services/DepartmentServices');
+const validator=require('../../Utils/Utils');
 
 const usersSchema=new Schema({
     email:{
@@ -28,19 +28,7 @@ const usersSchema=new Schema({
     department:{
         type:mongoose.Types.ObjectId,
         validate:{
-            validator: async(id)=>{
-                try{
-                    const response=await departmentService.findDept({_id:id});
-                    if(response){
-                        return true;
-                    }else{
-                        return false;
-                    }
-            }
-            catch(err){
-            throw err;
-            }
-    }
+            validator:validator.validatorFunc
         },
         message:'Invalid department value.'
     },

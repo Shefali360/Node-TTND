@@ -6,6 +6,9 @@ const {ResourceNotFound}=require('../../ErrorHandler/Generic/GenericExceptions')
 const jwt=require("jsonwebtoken");
 const userService=require('../Services/UserServices');
 const userRole=require('../../Config/Config');
+const http = require('http');
+const fs = require('fs');
+const {v4:uuidv4}=require('uuid');
 
 dotenv.config();
 
@@ -23,10 +26,19 @@ module.exports.handleAuthTokenRequest = async (req, res,next) => {
       },
     });
     const userData= jwt.decode(token.data.id_token);
+    // const imageArr=userData.picture.split('/');
+    // const imageExtension=imageArr[imageArr.length-1];
+    // const file = fs.createWriteStream("../ProfilePic/"+uuidv4() + imageExtension);
+    // const pic = http.get(userData.picture,
+    // (response)=>{
+    // response.pipe(file);
+    // });
+    // console.log(file.path);
     const userProfile=await userService.addOrUpdateUser({ 
                                 name: userData.name,
                                 email: userData.email,
                                 picture:userData.picture});
+    // console.log(userProfile);
     const userRoleCode=userRole.roles[userProfile.role];
     token.data['id_token'] = jwt.sign({ name: userProfile.name,email: userProfile.email,picture:userProfile.picture,role:userProfile.role,roleCode:userRoleCode}, process.env.CLIENT_SECRET);
     return res.json(token['data']);

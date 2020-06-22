@@ -61,14 +61,14 @@ module.exports.updateProfilePicture = async (req, res, next) => {
   }
 };
 
-module.exports.updateRole = async (req, res, next) => {
+module.exports.updatePrivileges = async (req, res, next) => {
   try {
-    const email = req.data.email;
+    const email = req.params.email;
     const updatedData={
       ...(req.body.role&&{role:req.body.role}),
       ...(req.body.department&&{department:req.body.department})
     }
-    const userProfile = await usersService.updateRole(email,updatedData);
+    const userProfile = await usersService.updatePrivileges(email,updatedData);
     if(updatedData.role){
     const userRoleCode = userRole.roles[userProfile.role];
     const id_token = jwt.sign(
@@ -109,7 +109,7 @@ module.exports.getUsers = async (req, res, next) => {
 
 module.exports.deleteUser = async (req, res) => {
   try {
-    const email = req.data.email;
+    const email = req.params.email;
     const response = await usersService.deleteUser(email);
     res.send(response);
   } catch (err) {

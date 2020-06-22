@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const validator=require('../../Utils/Utils');
 
 const complaintSchema=new Schema({
     issueId:{
@@ -8,29 +9,20 @@ const complaintSchema=new Schema({
       immutable:true
     },
     department:{
-      type:String,
-      enum:['Admin','IT','HR','Infra'],
-      default:'Admin',
+      type:mongoose.Types.ObjectId,
+        validate:{
+            validator: validator.validatorFunc
+        },
+        message:'Invalid department value.'
     },
     issue:{
       type:String,
       enum:['Hardware','Infrastructure','Others'],
       default:'Hardware',
     },
-    name:{
-      type:String,
-      required:true,
-      immutable:true
-    },
     assignedTo:{
       type:String,
-      required:true,
-      immutable:true
-    },
-    lockedBy:{
-      type:String,
-      required:true,
-      immutable:true
+      required:true
     },
     email:{
       type:String,

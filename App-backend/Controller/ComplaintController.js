@@ -28,7 +28,11 @@ module.exports.createComplaint = async (req, res, next) => {
   }
 };
 
-module.exports.getAllComplaints = async (req, res, next) => {
+module.exports.getComplaints = async (req, res, next) => {
+  const userEmail = req.data.email;
+  if(req.path==='/'){
+    req.query["email"]=userEmail;
+  }
   const limitCount = req.query.limit;
   delete req.query.limit;
   const skipCount = req.query.skip;

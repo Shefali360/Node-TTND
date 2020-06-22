@@ -15,6 +15,7 @@ const {
 const jwt = require("jsonwebtoken");
 const Role = require("../../Config/Config");
 const userService = require("../Services/UserServices");
+const {v4:uuidv4}=require('uuid');
 
 module.exports.verifyTokenMiddleware = async (req, res, next) => {
   try {
@@ -92,7 +93,7 @@ module.exports.fileStorage=(destination)=>multer.diskStorage({
     callback(null, destination);
   },
   filename: function (req, file, callback) {
-    callback(null, new Date().toISOString() + file.originalname);
+    callback(null, uuidv4() + file.originalname);
   },
 });
 

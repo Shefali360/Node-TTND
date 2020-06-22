@@ -20,12 +20,12 @@ router.post(
     "/all",
     midware.verifyTokenToGetUserData,
     midware.checkAdminPrivileges,
-    complaint.getAllComplaints
+    complaint.getComplaints
   );
   router.get(
     "/",
     midware.verifyTokenToGetUserData,
-    complaint.getComplaintsByUserEmail
+    complaint.getComplaints
   );
   router.patch(
    "/:id",
