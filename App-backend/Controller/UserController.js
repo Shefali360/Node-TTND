@@ -21,10 +21,7 @@ module.exports.updateProfile = async (req, res, next) => {
     const userRoleCode = userRole.roles[userProfile.role];
     const id_token = jwt.sign(
       {
-        name: userProfile.name,
-        email: userProfile.email,
-        picture: userProfile.picture,
-        role: userProfile.role,
+        ...userProfile,
         roleCode: userRoleCode,
       },
       process.env.CLIENT_SECRET
@@ -47,10 +44,7 @@ module.exports.updateProfilePicture = async (req, res, next) => {
     const userRoleCode = userRole.roles[userProfile.role];
     const id_token = jwt.sign(
       {
-        name: userProfile.name,
-        email: userProfile.email,
-        picture: userProfile.picture,
-        role: userProfile.role,
+       ...userProfile,
         roleCode: userRoleCode,
       },
       process.env.CLIENT_SECRET
@@ -73,10 +67,7 @@ module.exports.updatePrivileges = async (req, res, next) => {
     const userRoleCode = userRole.roles[userProfile.role];
     const id_token = jwt.sign(
       {
-        name: userProfile.name,
-        email: userProfile.email,
-        picture: userProfile.picture,
-        role: userProfile.role,
+        ...userProfile,
         roleCode: userRoleCode,
       },
       process.env.CLIENT_SECRET

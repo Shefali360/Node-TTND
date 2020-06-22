@@ -16,7 +16,7 @@ module.exports.addOrUpdateUser = async (data) => {
         runValidators: true,
       }
     );
-    return response;
+    return response.toJSON();
   } catch (err) {
     if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
@@ -33,7 +33,7 @@ module.exports.updateProfile = async (email, updatedData) => {
       { $set: updatedData },
       { new: true, runValidators: true }
     );
-    return update;
+    return update.toJSON();
   } catch (err) {
     if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
@@ -50,7 +50,7 @@ module.exports.updatePrivileges = async (email,updatedData) => {
       { $set:updatedData },
       { new: true, runValidators: true}
     );
-    return update;
+    return update.toJSON();
   } catch (err) {
     if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);

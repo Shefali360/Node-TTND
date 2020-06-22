@@ -15,38 +15,87 @@ module.exports.createComplaint = async (data) => {
     }
   }
 };
-module.exports.getAllComplaints = async (query, limit, skip) => {
-  try {
-    const userComplaints = await complaint
-      .find(
-        query,
-        "department issueId issue lockedBy assignedTo status estimatedTime concern timestamp email"
-      )
-      .sort({
-        timestamp: -1,
-      })
-      .limit(limit ? limit : 0)
-      .skip(skip ? skip : 0);
-    return userComplaints;
-  } catch (err) {
-    throw new ServerError("Error", 500);
-  }
-};
 
-module.exports.getComplaintsByUserEmail = async (query, limit, skip) => {
+module.exports.getComplaints = async (query, limit, skip) => {
   try {
-    const userComplaint = await complaint
-      .find(
-        query,
-        "department issueId issue assignedTo status estimatedTime concern timestamp"
-      ).sort({
-        timestamp: -1,
-      })
-      .limit(limit ? limit : 0)
-      .skip(skip ? skip : 0);
-    return userComplaint;
+    const pipeline=[
+      {$match:query},
+      {
+        $lookup:{
+            from:"users",
+            localField:"email",
+            foreignField:"email",
+            as:"lockedBy"
+        }
+      },
+      {
+      $lookup:{
+          from:"users",
+          localField:"assignedTo",
+          foreignField:"email",
+          as:"assignedTo"
+      }
+    },
+     {
+     $lookup:{
+        from:"departments",
+        localField:"department",
+        foreignField:"department",
+        as:"department"
+      }
+    },
+    {
+      $set:{
+        lockedBy:{$arrayElemAt:['$lockedBy',0]},
+        assignedTo:{$arrayElemAt:['$assignedTo',0]},
+        department:{$arrayElemAt:['$department',0]},
+
+      }
+    },
+    {
+      $project:{
+        __v:0,
+        email:0,
+        lockedBy:{
+          _id:0,
+          __v:0,
+          picture:0,
+          dob:0,
+          phone:0,
+          role:0,
+          department:0
+        },
+        assignedTo:{
+          _id:0,
+          __v:0,
+          picture:0,
+          dob:0,
+          phone:0,
+          role:0,
+          department:0
+        },
+        department:{
+          __v:0
+        }
+      }
+    },
+  {
+    $sort:{
+      timestamp:-1
+    }
+  },
+  {
+      $skip: skip
+  }
+]
+  if(limit){
+    pipeline.push({$limit:limit})
+  }
+const complaintList=await complaint.aggregate(pipeline).exec();
+    return complaintList;
    
   } catch (err) {
+    console.log(err);
     throw new ServerError("Error", 500);
   }
 };

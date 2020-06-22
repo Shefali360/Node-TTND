@@ -17,12 +17,6 @@ router.post(
     complaint.createComplaint
   );
   router.get(
-    "/all",
-    midware.verifyTokenToGetUserData,
-    midware.checkAdminPrivileges,
-    complaint.getComplaints
-  );
-  router.get(
     "/",
     midware.verifyTokenToGetUserData,
     complaint.getComplaints

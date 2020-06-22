@@ -28,34 +28,20 @@ module.exports.createComplaint = async (req, res, next) => {
   }
 };
 
-module.exports.getComplaints = async (req, res, next) => {
-  const userEmail = req.data.email;
-  if(req.path==='/'){
+module.exports.getComplaints= async(req, res, next) => {
+  if(req.data.role==="User"){
+    const userEmail = req.data.email;
     req.query["email"]=userEmail;
+  }else if(req.data.role==="Admin"){
+    const userEmail = req.data.email;
+    req.query["assignedTo"]=userEmail;
   }
   const limitCount = req.query.limit;
   delete req.query.limit;
   const skipCount = req.query.skip;
   delete req.query.skip;
   try {
-    const response = await complaintService.getAllComplaints(
-      req.query,
-      Number(limitCount),Number(skipCount)
-    );
-    res.send(response);
-  } catch (err) {
-    next(err);
-  }
-};
-module.exports.getComplaintsByUserEmail = async(req, res, next) => {
-  const userEmail = req.data.email;
-  req.query["email"]=userEmail;
-  const limitCount = req.query.limit;
-  delete req.query.limit;
-  const skipCount = req.query.skip;
-  delete req.query.skip;
-  try {
-    const response = await complaintService.getComplaintsByUserEmail(
+    const response = await complaintService.getComplaints(
       req.query,
       Number(limitCount),Number(skipCount)
     );
