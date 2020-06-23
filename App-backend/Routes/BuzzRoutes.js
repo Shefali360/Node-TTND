@@ -13,10 +13,10 @@ router.get("/", midware.verifyTokenToGetUserData,buzz.getBuzz);
 router.post(
   "/",
   midware.verifyTokenToGetUserData,
-  imageUpload.array("images"),
+  imageUpload.array("images",5),
   buzz.createBuzz
 );
-router.patch("/update/:id",midware.verifyTokenToGetUserData,buzz.updateBuzz);
+router.patch("/update/:id", imageUpload.array("images",5),midware.verifyTokenToGetUserData,buzz.updateBuzz);
 router.patch("/like/:id",midware.verifyTokenToGetUserData, buzz.updateLikes);
 router.patch("/dislike/:id",midware.verifyTokenToGetUserData, buzz.updateDislikes);
 router.delete("/:id", buzz.delete);

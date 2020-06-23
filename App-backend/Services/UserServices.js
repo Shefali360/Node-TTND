@@ -73,6 +73,16 @@ module.exports.getUsers = async (query, limit, skip) => {
   }
 };
 
+
+module.exports.getUserByEmail=async(email)=>{
+  try {
+    const response = await users.findOne({email:email});
+    return response;
+  } catch (err) {
+    throw new ServerError("Error", 500);
+  }
+}
+
 module.exports.deleteUser = async (email) => {
   try {
     const response = await users.deleteOne({

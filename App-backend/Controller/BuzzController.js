@@ -42,6 +42,19 @@ module.exports.updateBuzz=async(req,res,next)=>{
         ("This action is unacceptable", 406)
       );
     }
+    const buzzData = await buzzService.getBuzzById(req.params);
+    console.log(buzzData);
+    if (buzzData.email !== req.data.email) {
+      throw new UnauthorizedAccess(
+        ("Insufficient privileges to update buzz..", 403)
+      );
+    }
+    const paths=[];
+  if(req.files){
+  req.files.forEach(path=>{
+    paths.push(path.path);
+  })}
+  req.body.images=paths;
     const buzz=await buzzService.updateBuzz(req.params,req.body);
     res.send(buzz);
   }catch(err){
@@ -71,6 +84,12 @@ module.exports.updateDislikes = async (req, res) => {
 
 module.exports.delete = async (req, res) => {
   try {
+    const buzz= await buzzService.getBuzzById(req.params);
+    if(buzz.email!==req.data.email){
+      throw new ActionNotAcceptable(
+        ("Only creator can delete his/her post", 403)
+      );
+    }
     const response = await buzzService.delete(req.params);
     res.send(response); 
   } catch (err) {

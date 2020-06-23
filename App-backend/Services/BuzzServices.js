@@ -17,6 +17,7 @@ module.exports.createBuzz=async(data)=>{
 }
 }
 
+
 module.exports.getBuzz = async (email,query,limit,skip) => {
   try{
     const pipeline=[
@@ -74,6 +75,15 @@ const allBuzz = await buzz.aggregate(pipeline).exec();
   console.log(err);
   }
 };
+
+module.exports.getBuzzById=async({id})=>{
+    try{
+      const response=await buzz.findById({_id:id});
+      return response;
+    }catch(err){
+      throw new ServerError("Error", 500);
+    }
+  }
 
 module.exports.updateBuzz=async({id},updatedData)=>{
     try {

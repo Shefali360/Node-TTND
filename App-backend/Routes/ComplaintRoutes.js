@@ -13,7 +13,7 @@ const fileUpload = multer({
 router.post(
     "/",
     midware.verifyTokenToGetUserData,
-    fileUpload.array("files"),
+    fileUpload.array("files",5),
     complaint.createComplaint
   );
   router.get(
@@ -21,11 +21,23 @@ router.post(
     midware.verifyTokenToGetUserData,
     complaint.getComplaints
   );
+  router.get(
+    "assigned/",
+    midware.verifyTokenToGetUserData,
+    midware.checkPrivileges,
+    complaint.getAssignedComplaints
+  );
   router.patch(
-   "/:id",
+    "/:id",
+    midware.verifyTokenToGetUserData,
+    fileUpload.array("files",5),
+   complaint.updateComplaints
+   );
+  router.patch(
+   "/resolve/:id",
    midware.verifyTokenToGetUserData,
-   midware.checkAdminPrivileges,
+   midware.checkPrivileges,
   complaint.updateComplaintStatusById
   );
-  router.delete("/",complaint.delete);
+  router.delete("/:id",complaint.delete);
   module.exports = router;
