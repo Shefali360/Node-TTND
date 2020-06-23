@@ -15,9 +15,8 @@ module.exports.createDept=async(data)=>{
       else
       if(err.code===11000){
         throw new DuplicateKey(err.message, 400);
-      }
-              {throw new ServerError("Error",500);}
-   
+      }else{throw new ServerError("Error",500);
+    }  
   }
   }
 

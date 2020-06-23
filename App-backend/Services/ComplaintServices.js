@@ -139,16 +139,18 @@ module.exports.getComplaints = async (query, limit, skip) => {
 module.exports.getComplaintById=async({id})=>{
   try{
     const response=await complaint.findById({_id:id});
+    console.log(response);
     return response;
   }catch(err){
+    console.log(err);
     throw new ServerError("Error", 500);
   }
 }
 
-
 module.exports.updateComplaints=async({id},complaintData)=>{
   try{
-      const response = await complaint.findOneAndUpdate({_id:id},{$set:complaintData},{new:true,runValidators:true});
+      const response = await complaint.findOneAndUpdate({_id:id},
+        {$set:complaintData},{new:true,runValidators:true});
       return response;
 }catch(err){
   if (err.name === "ValidationError") {

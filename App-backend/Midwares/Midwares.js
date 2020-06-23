@@ -125,9 +125,7 @@ module.exports.checkPrivileges = (role) => {
   return async(req, res, next) => {
     let samePrivilege = null;
     try {
-      const userDetails = await userService.addOrUpdateUser({
-        email: req.data.email,
-      });
+      const userDetails = await userService.getUserByEmail(req.data.email);
       if (userDetails.role === req.data.role) {
         samePrivilege = true;
       } else {
@@ -154,6 +152,7 @@ module.exports.checkPrivileges = (role) => {
         );
       }
     } catch (err) {
+      console.log(err);
       return next(new ServerError("Error"), 500);
     }
   };

@@ -24,7 +24,7 @@ router.post(
   router.get(
     "assigned/",
     midware.verifyTokenToGetUserData,
-    midware.checkPrivileges,
+    midware.checkPrivileges("Admin"),
     complaint.getAssignedComplaints
   );
   router.patch(
@@ -36,7 +36,7 @@ router.post(
   router.patch(
    "/resolve/:id",
    midware.verifyTokenToGetUserData,
-   midware.checkPrivileges,
+   midware.checkPrivileges("Admin"),
   complaint.updateComplaintStatusById
   );
   router.delete("/:id",complaint.delete);

@@ -3,6 +3,9 @@ const complaintService = require("../Services/ComplaintServices");
 const {
   UnauthorizedAccess,
 } = require("../../ErrorHandler/Admin/AdminExceptions");
+const{ActionNotAcceptable}=require("../../ErrorHandler/Generic/GenericExceptions");
+const mail=require('../../Mails/Mails');
+
 
 module.exports.createComplaint = async (req, res, next) => {
   const myuserdata = req.data;
@@ -31,13 +34,14 @@ module.exports.createComplaint = async (req, res, next) => {
   try {
     const response = await complaintService.createComplaint(req.body);
     res.send(response);
+    mail.sendMail(req.body.email,"Complaint created..",
+    "hjvxsajgcjas","<h1>hjvxsajgcjas</h1>");
   } catch (err) {
     next(err);
   }
 };
 
 module.exports.getComplaints = async (req, res, next) => {
-  
   const userEmail = req.data.email;
   if(!(req.query.all&&req.data.role==="SuperAdmin")){
   req.query["email"] = userEmail;
@@ -144,7 +148,11 @@ module.exports.updateComplaintStatusById = async (req, res, next) => {
       req.body
     );
     res.send(response);
+    if(req.body.status==="Closed"){
+      mail.sendMail(complaint.email,"Complaint resolved..","hjvxsajgcjas","<h1>hjvxsajgcjas</h1>");
+    }
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };

@@ -8,18 +8,44 @@ const {
   RequiredFieldAbsent,
 } = require("../../ErrorHandler/Validation/ValidationExceptions");
 const {
-  ResourceNotFound,
+  ResourceNotFound,ServerError
 } = require("../../ErrorHandler/Generic/GenericExceptions");
+const {
+  DuplicateKey
+}=require("../../ErrorHandler/Validation/ValidationExceptions");
+const {UnauthorizedAccess}=require("../../ErrorHandler/Admin/AdminExceptions");
 const jwt = require("jsonwebtoken");
 const userService = require("../Services/UserServices");
 const userRole = require("../../Config/Config");
-const http = require("http");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
 dotenv.config();
 
-module.exports.handleAuthTokenRequest = async (req, res, next) => {
+const downloadImage=async(path)=>{
+  const imageArr=path.split('/');
+  const imageExtension=uuidv4()+imageArr[imageArr.length-1];
+  const imagePath=[process.cwd(),"ProfilePic",imageExtension].join('/');
+  const fileStream=fs.createWriteStream(imagePath);
+  try{
+    const imageData=await axios.request({
+      method:'GET',
+      url:path,
+      responseType:'arraybuffer'
+    });
+  fileStream.write(Buffer.from(imageData.data,'binary'),'binary',(err)=>{
+    if(err){
+      throw new ServerError("Error",500);
+    }
+  })
+  return {imageExtension,imagePath};
+  }catch(err){
+      throw new ServerError("Error",500);
+  }
+};
+
+module.exports.signup= async (req, res, next) => {
+  let fileData=null;
   try {
     const token = await axios({
       url: "https://oauth2.googleapis.com/token",
@@ -33,26 +59,62 @@ module.exports.handleAuthTokenRequest = async (req, res, next) => {
       },
     });
     const userData = jwt.decode(token.data.id_token);
-    // const imageArr=userData.picture.split('/');
-    // const imageExtension=imageArr[imageArr.length-1];
-    // const file = fs.createWriteStream("../ProfilePic/"+uuidv4() + imageExtension);
-    // const pic = http.get(userData.picture,
-    // (response)=>{
-    // response.pipe(file);
-    // });
-    // console.log(file.path);
-    const userProfile = await userService.addOrUpdateUser({
-      name: userData.name,
-      email: userData.email,
-      picture: userData.picture,
-    });
-    const userRoleCode = userRole.roles[userProfile.role];
+    fileData=await downloadImage(userData.picture);
+    const userProfile={
+      name:userData.name,
+      email:userData.email,
+      picture:fileData.imageExtension
+    };
+    console.log(fileData);
+    const newUser=await userService.createUser(userProfile);
+    delete newUser.__v;
+    const userRoleCode = userRole.roles[newUser.role];
     token.data["id_token"] = jwt.sign(
-      {...userProfile, roleCode: userRoleCode},
+      {...newUser, roleCode: userRoleCode},
       process.env.CLIENT_SECRET
     );
     return res.json(token["data"]);
   } catch (err) {
+    if(fileData){fs.unlink(fileData.imagePath,()=>{})};
+    if(err.code==='DUPLICATE_KEY'){
+    return next(err);
+  }
+    return next(
+      new invalidTokenCodeError(
+        "Invalid code for token access request",
+        401
+      )
+    );
+  }
+};
+
+module.exports.signin= async (req, res, next) => {
+  try {
+    const token = await axios({
+      url: "https://oauth2.googleapis.com/token",
+      method: "post",
+      data: {
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        redirect_uri: "http://localhost:3000/authToken",
+        grant_type: "authorization_code",
+        code: decodeURIComponent(req.params["code"]),
+      },
+    });
+    const userData = jwt.decode(token.data.id_token);
+    const user=await userService.getUserByEmail(userData.email);
+    if(!user){
+      throw new UnauthorizedAccess('user does not exist.',401);
+    }
+    const userRoleCode = userRole.roles[user.role];
+    token.data["id_token"] = jwt.sign(
+      {...user, roleCode: userRoleCode},
+      process.env.CLIENT_SECRET
+    );
+    return res.json(token["data"]);
+  } catch (err) {
+    console.log(err);
+    if(err.code==='UNAUTHORIZED_ACCESS_REQUEST')return next(err);
     return next(
       new invalidTokenCodeError(
         "Invalid code for token access request",

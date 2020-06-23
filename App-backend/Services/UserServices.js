@@ -3,24 +3,20 @@ const { ServerError } = require("../../ErrorHandler/Generic/GenericExceptions");
 const {
   DataValidationFailed,
 } = require("../../ErrorHandler/Buzz/BuzzExceptions");
+const {DuplicateKey} = require('../../ErrorHandler/Validation/ValidationExceptions');
 
-module.exports.addOrUpdateUser = async (data) => {
+module.exports.createUser = async (data) => {
+  const user=new users(data);
   try {
-    const response = await users.findOneAndUpdate(
-      { email: data.email },
-      { $setOnInsert: data },
-      {
-        upsert: true,
-        setDefaultsOnInsert: true,
-        new: true,
-        runValidators: true,
-      }
-    );
-    return response.toJSON();
+    await user.save();      
+    return user.toJSON();
   } catch (err) {
-    if (err.name === "ValidationError") {
+    console.log(err);
+    if(err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
-    } else {
+    } else  if(err.code===11000){
+      throw new DuplicateKey(err.message, 400);
+    }else{
       throw new ServerError("Error", 500);
     }
   }
