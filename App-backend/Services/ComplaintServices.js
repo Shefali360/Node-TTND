@@ -23,12 +23,11 @@ module.exports.assignAdmin = async (department, email) => {
     let admin = await user
       .find({
         $or: [
-          { department: department, role: "Admin" },
+          { department: department, role: "Admin", email: {$ne: email} },
           {
             role: "SuperAdmin",
           },
-        ],
-        email: { $ne: email },
+        ]
       })
       .lean();
 
@@ -37,7 +36,6 @@ module.exports.assignAdmin = async (department, email) => {
     }
     return adminAssignment(admin);
   } catch (err) {
-    console.log(err);
     throw new ServerError("Error", 500);
   }
 };
@@ -132,17 +130,14 @@ module.exports.getComplaints = async (query, limit, skip) => {
     const complaintList = await complaint.aggregate(pipeline).exec();
     return complaintList;
   } catch (err) {
-    console.log(err);
     throw new ServerError("Error", 500);
   }
 };
 module.exports.getComplaintById=async({id})=>{
   try{
     const response=await complaint.findById({_id:id});
-    console.log(response);
     return response;
   }catch(err){
-    console.log(err);
     throw new ServerError("Error", 500);
   }
 }
@@ -156,13 +151,16 @@ module.exports.updateComplaints=async({id},complaintData)=>{
   if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
     } else {
-        console.log(err);
       throw new ServerError("Error", 500);
     }
 }
 }
 
-module.exports.delete = async ({id}) => {
+module.exports.deleteComplaint = async ({id}) => {
+  try{
   const response = await complaint.deleteOne({_id:id});
   return response;
+  }catch(err){
+    throw new ServerError("Error", 500);
+  }
 };

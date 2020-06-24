@@ -8,44 +8,46 @@ const {
   RequiredFieldAbsent,
 } = require("../../ErrorHandler/Validation/ValidationExceptions");
 const {
-  ResourceNotFound,ServerError
+  ResourceNotFound,
+  ServerError,
 } = require("../../ErrorHandler/Generic/GenericExceptions");
 const {
-  DuplicateKey
-}=require("../../ErrorHandler/Validation/ValidationExceptions");
-const {UnauthorizedAccess}=require("../../ErrorHandler/Admin/AdminExceptions");
+  DuplicateKey,
+} = require("../../ErrorHandler/Validation/ValidationExceptions");
+const {
+  UnauthorizedAccess,
+} = require("../../ErrorHandler/Admin/AdminExceptions");
 const jwt = require("jsonwebtoken");
 const userService = require("../Services/UserServices");
-const userRole = require("../../Config/Config");
+const config = require("../../Config/Config");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
 dotenv.config();
 
-const downloadImage=async(path)=>{
-  const imageArr=path.split('/');
-  const imageExtension=uuidv4()+imageArr[imageArr.length-1];
-  const imagePath=[process.cwd(),"ProfilePic",imageExtension].join('/');
-  const fileStream=fs.createWriteStream(imagePath);
-  try{
-    const imageData=await axios.request({
-      method:'GET',
-      url:path,
-      responseType:'arraybuffer'
+const downloadImage = async (path) => {
+  const imageExtension = uuidv4() + "profilePic.jpg";
+  const imagePath = [process.cwd(), config.folders.ProfilePicture, imageExtension].join("/");
+  const fileStream = fs.createWriteStream(imagePath);
+  try {
+    const imageData = await axios.request({
+      method: "GET",
+      url: path,
+      responseType: "arraybuffer",
     });
-  fileStream.write(Buffer.from(imageData.data,'binary'),'binary',(err)=>{
-    if(err){
-      throw new ServerError("Error",500);
-    }
-  })
-  return {imageExtension,imagePath};
-  }catch(err){
-      throw new ServerError("Error",500);
+    fileStream.write(Buffer.from(imageData.data, "binary"), "binary", (err) => {
+      if (err) {
+        throw new ServerError("Error", 500);
+      }
+    });
+    return { imageExtension, imagePath };
+  } catch (err) {
+    throw new ServerError("Error", 500);
   }
 };
 
-module.exports.signup= async (req, res, next) => {
-  let fileData=null;
+module.exports.signup = async (req, res, next) => {
+  let fileData = null;
   try {
     const token = await axios({
       url: "https://oauth2.googleapis.com/token",
@@ -59,36 +61,35 @@ module.exports.signup= async (req, res, next) => {
       },
     });
     const userData = jwt.decode(token.data.id_token);
-    fileData=await downloadImage(userData.picture);
-    const userProfile={
-      name:userData.name,
-      email:userData.email,
-      picture:fileData.imageExtension
+    fileData = await downloadImage(userData.picture);
+    const userProfile = {
+      name: userData.name,
+      email: userData.email,
+      picture: fileData.imageExtension,
     };
-    console.log(fileData);
-    const newUser=await userService.createUser(userProfile);
+    let newUser = await userService.createUser(userProfile);
     delete newUser.__v;
-    const userRoleCode = userRole.roles[newUser.role];
+    newUser=newUser.toJSON();
+    const userRoleCode = config.roles[newUser.role];
     token.data["id_token"] = jwt.sign(
-      {...newUser, roleCode: userRoleCode},
+      { ...newUser, roleCode: userRoleCode },
       process.env.CLIENT_SECRET
     );
     return res.json(token["data"]);
   } catch (err) {
-    if(fileData){fs.unlink(fileData.imagePath,()=>{})};
-    if(err.code==='DUPLICATE_KEY'){
-    return next(err);
-  }
+    if (fileData) {
+      fs.unlink(fileData.imagePath, () => {});
+    }
+    if (err.code === "DUPLICATE_KEY") {
+      return next(err);
+    }
     return next(
-      new invalidTokenCodeError(
-        "Invalid code for token access request",
-        401
-      )
+      new invalidTokenCodeError("Invalid code for token access request", 401)
     );
   }
 };
 
-module.exports.signin= async (req, res, next) => {
+module.exports.signin = async (req, res, next) => {
   try {
     const token = await axios({
       url: "https://oauth2.googleapis.com/token",
@@ -102,19 +103,19 @@ module.exports.signin= async (req, res, next) => {
       },
     });
     const userData = jwt.decode(token.data.id_token);
-    const user=await userService.getUserByEmail(userData.email);
-    if(!user){
-      throw new UnauthorizedAccess('user does not exist.',401);
+    let user = await userService.getUserByEmail(userData.email);
+    if (!user) {
+      throw new UnauthorizedAccess("user does not exist.", 401);
     }
-    const userRoleCode = userRole.roles[user.role];
+    user=user.toJSON();
+    const userRoleCode = config.roles[user.role];
     token.data["id_token"] = jwt.sign(
-      {...user, roleCode: userRoleCode},
+      { ...user, roleCode: userRoleCode },
       process.env.CLIENT_SECRET
     );
     return res.json(token["data"]);
   } catch (err) {
-    console.log(err);
-    if(err.code==='UNAUTHORIZED_ACCESS_REQUEST')return next(err);
+    if (err.code === "UNAUTHORIZED_ACCESS_REQUEST") return next(err);
     return next(
       new invalidTokenCodeError(
         "Invalid code for token access request",
@@ -137,7 +138,6 @@ module.exports.handleLogout = async (req, res, next) => {
     });
     res.send({ success: true });
   } catch (err) {
-    console.log(err);
     next(
       new invalidTokenError(
         "Invalid token received or token has been expired",

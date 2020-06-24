@@ -3,3 +3,9 @@ module.exports.roles={
     Admin:1,
     SuperAdmin:2
 };
+
+module.exports.folders={
+    Images:"Images",
+    Files:"Attachments",
+    ProfilePicture:"ProfilePic"
+}

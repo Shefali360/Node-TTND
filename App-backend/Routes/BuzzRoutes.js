@@ -2,6 +2,7 @@ const buzz = require("../../App-backend/Controller/BuzzController");
 const midware = require("../Midwares/Midwares");
 const router = require("express").Router();
 const multer = require("multer");
+
 const imageUpload = multer({
   storage: midware.fileStorage('./Images/'),
   limits: {
@@ -19,5 +20,5 @@ router.post(
 router.patch("/update/:id", imageUpload.array("images",5),midware.verifyTokenToGetUserData,buzz.updateBuzz);
 router.patch("/like/:id",midware.verifyTokenToGetUserData, buzz.updateLikes);
 router.patch("/dislike/:id",midware.verifyTokenToGetUserData, buzz.updateDislikes);
-router.delete("/:id", buzz.delete);
+router.delete("/:id",midware.verifyTokenToGetUserData, buzz.delete);
 module.exports=router;

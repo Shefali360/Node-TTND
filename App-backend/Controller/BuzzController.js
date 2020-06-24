@@ -1,7 +1,11 @@
 const {ServerError,ActionNotAcceptable} = require("../../ErrorHandler/Generic/GenericExceptions");
 const buzzService=require('../Services/BuzzServices');
+const {
+  UnauthorizedAccess,
+} = require("../../ErrorHandler/Admin/AdminExceptions");
 
 module.exports.createBuzz = async(req, res,next) => {
+  
   const paths=[];
   if(req.files){
   req.files.forEach(path=>{
@@ -37,16 +41,15 @@ module.exports.getBuzz = async (req, res,next) => {
 
 module.exports.updateBuzz=async(req,res,next)=>{
   try{
-    if (req.body.likes || req.body.dislikes || req.body.liked || req.body.disliked) {
-      throw new ActionNotAcceptable(
-        ("This action is unacceptable", 406)
+    const buzzData = await buzzService.getBuzzById(req.params);
+    if (buzzData.userId !== req.data.email) {
+      return next(new UnauthorizedAccess
+        ("Insufficient privileges to update buzz..", 403)
       );
     }
-    const buzzData = await buzzService.getBuzzById(req.params);
-    console.log(buzzData);
-    if (buzzData.email !== req.data.email) {
-      throw new UnauthorizedAccess(
-        ("Insufficient privileges to update buzz..", 403)
+    if (req.body.likes || req.body.dislikes || req.body.liked || req.body.disliked) {
+     return next(new ActionNotAcceptable
+        ("This action is unacceptable", 406)
       );
     }
     const paths=[];
@@ -82,11 +85,11 @@ module.exports.updateDislikes = async (req, res) => {
   }
 };
 
-module.exports.delete = async (req, res) => {
+module.exports.delete = async (req, res,next) => {
   try {
     const buzz= await buzzService.getBuzzById(req.params);
     if(buzz.email!==req.data.email){
-      throw new ActionNotAcceptable(
+     return next( new ActionNotAcceptable
         ("Only creator can delete his/her post", 403)
       );
     }

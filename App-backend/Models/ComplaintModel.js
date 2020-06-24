@@ -22,11 +22,7 @@ const complaintSchema=new Schema({
     },
     assignedTo:{
       type:String,
-      required:true,
-      validate:{
-        validator: validator.validateAdmin
-    },
-    message:'Invalid assignedTo value.'
+      required:true
     },
     email:{
       type:String,

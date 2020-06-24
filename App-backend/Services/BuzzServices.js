@@ -72,7 +72,7 @@ const allBuzz = await buzz.aggregate(pipeline).exec();
   return allBuzz;
 }
   catch(err){
-  console.log(err);
+    throw new ServerError("Error", 500);
   }
 };
 
@@ -93,7 +93,6 @@ module.exports.updateBuzz=async({id},updatedData)=>{
     if (err.name === "ValidationError") {
         throw new DataValidationFailed(err.message, 500);
       } else {
-          console.log(err);
         throw new ServerError("Error", 500);
       }
 }
@@ -121,6 +120,7 @@ module.exports.updateLikes=async({id},email,reverse)=>{
           });
         return {success:true};
   } catch (err) {
+    throw new ServerError("Error", 500);
   }
 }
 
@@ -146,10 +146,15 @@ module.exports.updateDislikes=async({id},email,reverse)=>{
           });
         return {success:true};
   } catch (err) {
+    throw new ServerError("Error", 500);
   }
 }
 
 module.exports.delete= async ({id}) => {
-  const response = await buzz.deleteOne({_id:id});
+  try{
+      const response = await buzz.deleteOne({_id:id});
   return response;
+  }catch(err){
+    throw new ServerError("Error", 500);
+  }
 };

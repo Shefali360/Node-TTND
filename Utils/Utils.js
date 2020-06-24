@@ -1,5 +1,4 @@
 const departmentService = require("../App-backend/Services/DepartmentServices");
-const userService = require("../App-backend/Services/UserServices");
 
 module.exports.validatorFunc = async (id) => {
   try {
@@ -14,15 +13,3 @@ module.exports.validatorFunc = async (id) => {
   }
 };
 
-module.exports.validateAdmin = async (email) => {
-    try{
-    const response=await userService.getUserByEmail(email);
-    if (response) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      throw err;
-    }
-};

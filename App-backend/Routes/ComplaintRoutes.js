@@ -22,7 +22,7 @@ router.post(
     complaint.getComplaints
   );
   router.get(
-    "assigned/",
+    "/assigned",
     midware.verifyTokenToGetUserData,
     midware.checkPrivileges("Admin"),
     complaint.getAssignedComplaints
@@ -39,5 +39,5 @@ router.post(
    midware.checkPrivileges("Admin"),
   complaint.updateComplaintStatusById
   );
-  router.delete("/:id",complaint.delete);
+  router.delete("/:id",midware.verifyTokenToGetUserData,complaint.deleteComplaint);
   module.exports = router;
