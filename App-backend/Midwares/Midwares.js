@@ -152,7 +152,6 @@ module.exports.checkPrivileges = (role) => {
         );
       }
     } catch (err) {
-      console.log(err);
       return next(new ServerError("Error"), 500);
     }
   };
