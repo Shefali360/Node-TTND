@@ -1,28 +1,38 @@
 const nodemailer = require('nodemailer');
+const dotenv=require('dotenv');
+const fs=require('fs');
+
+dotenv.config();
+
 let transport = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
+    host:process.env.SMTP_HOST,
+    port:process.env.SMTP_PORT,
     auth: {
-       user: '0563dee18a9c71',
-       pass: '0ee06d3a5af560'
+       user:process.env.SMTP_USER,
+       pass:process.env.SMTP_PASS
     }
 });
 
-module.exports.sendMail=(to,subject,text,html)=>{
+
+const createEmailFromTemplate = (emailData) => {
+	let template = fs.readFileSync([process.cwd(), 'Templates', 'email.html'].join('/'), { encoding: 'utf8' });
+
+	template = template.replace('__HEADING__', emailData.heading);
+	template = template.replace('__CONTENT__', emailData.content);
+	template = template.replace('__SALUTATION__', emailData.salutation);
+	template = template.replace('__FROM__', emailData.from);
+
+	return template;
+};
+
+module.exports.sendMail=async(to,subject,emailData)=>{
     var mailOptions = {
         from: 'shefali.goyal@tothenew.com',
         to: to,
         subject:subject,
-        text:text,
-        html:html
+        html:createEmailFromTemplate(emailData)
       };
-      
-      transport.sendMail(mailOptions,function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
+
+      return await transport.sendMail(mailOptions);
 }
 

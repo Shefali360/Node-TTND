@@ -22,6 +22,7 @@ const userService = require("../Services/UserServices");
 const config = require("../../Config/Config");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
+const mail=require('../../Mails/Mails');
 
 dotenv.config();
 
@@ -75,7 +76,14 @@ module.exports.signup = async (req, res, next) => {
       { ...newUser, roleCode: userRoleCode },
       process.env.CLIENT_SECRET
     );
-    return res.json(token["data"]);
+    res.json(token["data"]);
+    mail.sendMail(newUser.email,"You have successfully signed up.",{
+      heading:`Hello ${newUser.name.split(' ')[0]},`,
+      content:`Welcome to "To The New" platform, login to view what's trending in you feed.
+      You are yet to be assigned a department, once that is done you can log your concerns and issues.`,
+      salutation: 'thank you',
+			from: 'to the new team'
+    })
   } catch (err) {
     if (fileData) {
       fs.unlink(fileData.imagePath, () => {});

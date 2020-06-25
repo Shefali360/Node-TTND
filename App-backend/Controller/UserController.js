@@ -5,6 +5,7 @@ const {
   UnauthorizedAccess,
 } = require("../../ErrorHandler/Admin/AdminExceptions");
 const userRole = require("../../Config/Config");
+const mail = require("../../Mails/Mails");
 
 dotenv.config();
 
@@ -73,8 +74,20 @@ module.exports.updatePrivileges = async (req, res, next) => {
       process.env.CLIENT_SECRET
     );
     res.send(id_token);
+    mail.sendMail(email, `Your role has been modified..`, {
+			heading: `hello`,
+			content: `Your previous role has been changed to ${req.body.role}`,
+			salutation: 'thank you',
+			from: 'to the new team'
+    });
   }else{
     res.send(updatedData);
+    mail.sendMail(email, `You have been assigned a department,${req.body.department}`, {
+			heading: `hello`,
+			content: `You have been set up with a department,${req.body.department}`,
+			salutation: 'thank you',
+			from: 'to the new team'
+    });
 }
 }catch (err) {
     next(err);
