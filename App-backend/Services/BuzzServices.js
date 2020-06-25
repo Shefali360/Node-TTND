@@ -1,5 +1,5 @@
 const buzz  = require("../Models/BuzzModel");
-const { ServerError} = require("../../ErrorHandler/Generic/GenericExceptions");
+const {ServerError} = require("../../ErrorHandler/Generic/GenericExceptions");
 const {DataValidationFailed}=require('../../ErrorHandler/Buzz/BuzzExceptions');
 
 module.exports.createBuzz=async(data)=>{

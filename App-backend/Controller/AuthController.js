@@ -113,7 +113,7 @@ module.exports.signin = async (req, res, next) => {
     const userData = jwt.decode(token.data.id_token);
     let user = await userService.getUserByEmail(userData.email);
     if (!user) {
-      throw new UnauthorizedAccess("user does not exist.", 401);
+     return next( new UnauthorizedAccess("user does not exist.", 401));
     }
     user=user.toJSON();
     const userRoleCode = config.roles[user.role];

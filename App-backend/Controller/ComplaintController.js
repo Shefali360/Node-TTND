@@ -12,6 +12,15 @@ const {
 } = require("../../ErrorHandler/Generic/GenericExceptions");
 const mail = require("../../Mails/Mails");
 
+const fileArray=(files)=>{
+  const paths = [];
+  if (files) {
+   files.forEach((path) => {
+      paths.push(path.path);
+    });
+  }
+  return paths;
+}
 module.exports.createComplaint = async (req, res, next) => {
   if (req.body.assignedTo || req.body.status || req.body.estimatedTime) {
     return next(new DataValidationFailed("Cannot modify these keys..", 403));
@@ -32,13 +41,7 @@ module.exports.createComplaint = async (req, res, next) => {
 
   req.body.issueId = issueId;
   req.body.timestamp = Date.now();
-  const paths = [];
-  if (req.files) {
-    req.files.forEach((path) => {
-      paths.push(path.path);
-    });
-  }
-  req.body.files = paths;
+  req.body.files = fileArray(req.files);
   try {
     const response = await complaintService.createComplaint(req.body);
     res.send(response);
@@ -132,13 +135,7 @@ module.exports.updateComplaints = async (req, res, next) => {
       );
       req.body.assignedTo = newAdmin;
     }
-    const paths = [];
-    if (req.files) {
-      req.files.forEach((path) => {
-        paths.push(path.path);
-      });
-    }
-    req.body.files = paths;
+    req.body.files = fileArray(req.files);
     const complaintData = await complaintService.updateComplaints(
       req.params,
       req.body
