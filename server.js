@@ -20,9 +20,13 @@ app.use(cors({
 }
 ));
 
+const middleware=()=>{
+  console.log("sjvsjcxs");
+}
 app.use(bodyParser.json());
 app.use(authRoutes);
 app.use("/images", express.static('Images'));
+app.use("/profilePic",express.static('ProfilePic'));
 app.use('/buzz',midware.verifyTokenMiddleware,buzzRoutes);
 app.use('/complaint',midware.verifyTokenMiddleware,complaintRoutes);
 app.use('/admin',midware.verifyTokenMiddleware, adminRoutes);

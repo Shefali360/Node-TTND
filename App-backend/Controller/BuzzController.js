@@ -11,7 +11,8 @@ const fileArray = (files) => {
   const paths = [];
   if (files) {
     files.forEach((path) => {
-      paths.push(path.path);
+      
+      paths.push(path.filename);
     });
   }
   return paths;
