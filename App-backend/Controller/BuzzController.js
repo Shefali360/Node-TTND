@@ -105,7 +105,7 @@ module.exports.updateDislikes = async (req, res) => {
 module.exports.delete = async (req, res, next) => {
   try {
     const buzz = await buzzService.getBuzzById(req.params);
-    if (buzz.email !== req.data.email) {
+    if (buzz.userId !== req.data.email) {
       return next(
         new ActionNotAcceptable("Only creator can delete his/her post", 403)
       );
