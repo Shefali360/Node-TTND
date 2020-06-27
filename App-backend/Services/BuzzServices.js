@@ -17,7 +17,6 @@ module.exports.createBuzz=async(data)=>{
 }
 }
 
-
 module.exports.getBuzz = async (email,query,limit,skip) => {
   try{
     const pipeline=[

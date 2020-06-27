@@ -26,11 +26,13 @@ module.exports.createComplaint = async (req, res, next) => {
     return next(new DataValidationFailed("Cannot modify these keys..", 403));
   }
   const myuserdata = req.data;
-  const admin = await complaintService.assignAdmin(
+  let admin = await complaintService.assignAdmin(
     req.body.department,
     myuserdata.email
   );
-  req.body.assignedTo = admin;
+  req.body.assignedTo = admin.email;
+  console.log(admin);
+  // console.log(req.body.assignedTo.name);
   req.body.email = myuserdata.email;
   req.body.name = myuserdata.name;
   req.body.lockedBy = myuserdata.name;
@@ -45,22 +47,23 @@ module.exports.createComplaint = async (req, res, next) => {
   try {
     const response = await complaintService.createComplaint(req.body);
     res.send(response);
+    console.log(admin);
     mail.sendMail(
       req.body.email,
       `Your complaint has been logged with ID: ${issueId}`,
       {
         heading: `hello ${myuserdata.name.split(" ")[0]}`,
-        content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>.
+        content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>
     Your complaint has been assigned to <span style="text-transform: capitalize>&nbsp;${admin.name}</span> (${admin.email}).`,
         salutation: "thank you",
         from: "to the new team",
       }
     );
     mail.sendMail(
-      assignedAdmin.email,
+     req.body.assignedTo.email,
       `New complaint assigned with Issue ID: ${issueId}`,
       {
-        heading: `hello ${admin.name.split(" ")[0]}`,
+        heading: `hello ${req.body.assignedTo.name.split(" ")[0]}`,
         content: `You have been assigned a new complain with Issue ID: ${issueId}.`,
         salutation: "thank you",
         from: "to the new team",

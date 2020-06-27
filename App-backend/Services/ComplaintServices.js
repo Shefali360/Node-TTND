@@ -13,7 +13,7 @@ const adminAssignment = (adminArr) => {
   while (1) {
     const index = randomInterval(0, adminArr.length - 1);
     if (adminArr[index].role !== "SuperAdmin") {
-      return adminArr[index].email;
+      return adminArr[index];
     }
   }
 };
@@ -30,12 +30,12 @@ module.exports.assignAdmin = async (department, email) => {
         ]
       })
       .lean();
-
     if (admin.length === 1) {
-      return admin[0].email;
+      return admin[0];
     }
     return adminAssignment(admin);
   } catch (err) {
+    console.log(err);
     throw new ServerError("Error", 500);
   }
 };
