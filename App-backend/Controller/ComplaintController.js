@@ -26,13 +26,12 @@ module.exports.createComplaint = async (req, res, next) => {
     return next(new DataValidationFailed("Cannot modify these keys..", 403));
   }
   const myuserdata = req.data;
-  let admin = await complaintService.assignAdmin(
+  const admin = await complaintService.assignAdmin(
     req.body.department,
     myuserdata.email
   );
+  const assignedTo=admin;
   req.body.assignedTo = admin.email;
-  console.log(admin);
-  // console.log(req.body.assignedTo.name);
   req.body.email = myuserdata.email;
   req.body.name = myuserdata.name;
   req.body.lockedBy = myuserdata.name;
@@ -47,28 +46,27 @@ module.exports.createComplaint = async (req, res, next) => {
   try {
     const response = await complaintService.createComplaint(req.body);
     res.send(response);
-    console.log(admin);
-    mail.sendMail(
-      req.body.email,
-      `Your complaint has been logged with ID: ${issueId}`,
-      {
-        heading: `hello ${myuserdata.name.split(" ")[0]}`,
-        content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>
-    Your complaint has been assigned to <span style="text-transform: capitalize>&nbsp;${admin.name}</span> (${admin.email}).`,
-        salutation: "thank you",
-        from: "to the new team",
-      }
-    );
-    mail.sendMail(
-     req.body.assignedTo.email,
-      `New complaint assigned with Issue ID: ${issueId}`,
-      {
-        heading: `hello ${req.body.assignedTo.name.split(" ")[0]}`,
-        content: `You have been assigned a new complain with Issue ID: ${issueId}.`,
-        salutation: "thank you",
-        from: "to the new team",
-      }
-    );
+    console.log(req.body.assignedTo);
+    // mail.sendMail(
+    //   req.body.email,
+    //   `Your complaint has been logged with ID: ${issueId}`,
+    //   {
+    //     heading: `hello ${myuserdata.name.split(" ")[0]}`,
+    //     content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>Your complaint has been assigned to <span style="text-transform: capitalize>&nbsp;${assignedTo.name}</span> (${assignedTo.email}).`,
+    //     salutation: "thank you",
+    //     from: "to the new team",
+    //   }
+    // );
+    // mail.sendMail(
+    //  req.body.assignedTo,
+    //   `New complaint assigned with Issue ID: ${issueId}`,
+    //   {
+    //     heading: `hello ${assignedTo.name.split(" ")[0]}`,
+    //     content: `You have been assigned a new complaint with Issue ID: ${issueId}.`,
+    //     salutation: "thank you",
+    //     from: "to the new team",
+    //   }
+    // );
   } catch (err) {
     next(err);
   }
@@ -84,6 +82,10 @@ module.exports.getComplaints = async (req, res, next) => {
   delete req.query.limit;
   const skipCount = req.query.skip;
   delete req.query.skip;
+  if(req.query.department){
+    const ObjectId = require('mongodb').ObjectId;
+    req.query["department"] = new ObjectId( req.query["department"]);
+  }
   try {
     const response = await complaintService.getComplaints(
       req.query,
