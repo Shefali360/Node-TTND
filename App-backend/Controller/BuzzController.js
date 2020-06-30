@@ -38,6 +38,10 @@ module.exports.getBuzz = async (req, res, next) => {
     const skipCount = req.query.skip;
     delete req.query.skip;
     const email = req.data.email;
+    if(req.query._id){
+      const ObjectId = require('mongodb').ObjectId;
+      req.query["_id"] = new ObjectId( req.query["_id"]);
+    }
     const response = await buzzService.getBuzz(
       email,
       req.query,
