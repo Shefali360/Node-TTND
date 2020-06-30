@@ -5,7 +5,6 @@ const cors=require('cors');
 const authRoutes = require('./App-backend/Routes/AuthRoutes');
 const buzzRoutes=require('./App-backend/Routes/BuzzRoutes');
 const complaintRoutes=require('./App-backend/Routes/ComplaintRoutes');
-const adminRoutes=require('./App-backend/Routes/AdminRoutes');
 const departmentRoutes=require('./App-backend/Routes/DepartmentRoutes');
 const usersRoutes=require('./App-backend/Routes/UserRoutes');
 const auth = require("./App-backend/Controller/AuthController");
@@ -20,16 +19,12 @@ app.use(cors({
 }
 ));
 
-const middleware=()=>{
-  console.log("sjvsjcxs");
-}
 app.use(bodyParser.json());
 app.use(authRoutes);
 app.use("/images", express.static('Images'));
 app.use("/profilePic",express.static('ProfilePic'));
 app.use('/buzz',midware.verifyTokenMiddleware,buzzRoutes);
 app.use('/complaint',midware.verifyTokenMiddleware,complaintRoutes);
-app.use('/admin',midware.verifyTokenMiddleware, adminRoutes);
 app.use('/department',midware.verifyTokenMiddleware,departmentRoutes);
 app.use('/users',midware.verifyTokenMiddleware,usersRoutes);
 app.use(auth.handleUnknownRequests);

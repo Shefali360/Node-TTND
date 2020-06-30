@@ -8,7 +8,6 @@ const {
 } = require("../../ErrorHandler/Auth/AuthExceptions");
 const { ServerError } = require("../../ErrorHandler/Generic/GenericExceptions");
 const multer = require("multer");
-const { getAdmin } = require("../../App-backend/Services/AdminServices");
 const {
   UnauthorizedAccess
 } = require("../../ErrorHandler/Admin/AdminExceptions");
@@ -155,27 +154,6 @@ module.exports.checkPrivileges = (role) => {
       return next(new ServerError("Error"), 500);
     }
   };
-};
-
-
-
-module.exports.checkAdminPrivileges = async (req, res, next) => {
-  try {
-    const userEmail = req.data.email;
-    const adminResponse = await getAdmin(userEmail);
-    if (adminResponse) {
-      return next();
-    } else {
-      return next(
-        new UnauthorizedAccess(
-          "You need admin privileges to access this data.",
-          403
-        )
-      );
-    }
-  } catch (err) {
-    return next(new ServerError("Error"), 500);
-  }
 };
 
 module.exports.errorHandlingMiddleware = (err, req, res, next) => {
