@@ -70,7 +70,7 @@ module.exports.updateBuzz = async (req, res, next) => {
     ) {
       return next(new ActionNotAcceptable("This action is unacceptable", 406));
     }
-    req.body.images = fileArray(req.files);
+    if(req.body.images){req.body.images = fileArray(req.files);}
     const buzz = await buzzService.updateBuzz(req.params, req.body);
     res.send(buzz);
   } catch (err) {

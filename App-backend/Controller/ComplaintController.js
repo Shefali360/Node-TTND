@@ -105,6 +105,10 @@ module.exports.getAssignedComplaints = async (req, res, next) => {
   delete req.query.limit;
   const skipCount = req.query.skip;
   delete req.query.skip;
+  if(req.query.department){
+    const ObjectId = require('mongodb').ObjectId;
+    req.query["department"] = new ObjectId( req.query["department"]);
+  }
   try {
     const response = await complaintService.getComplaints(
       req.query,
