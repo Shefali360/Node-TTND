@@ -46,7 +46,6 @@ module.exports.createComplaint = async (req, res, next) => {
   try {
     const response = await complaintService.createComplaint(req.body);
     res.send(response);
-    console.log(req.body.assignedTo);
     // mail.sendMail(
     //   req.body.email,
     //   `Your complaint has been logged with ID: ${issueId}`,
@@ -82,6 +81,10 @@ module.exports.getComplaints = async (req, res, next) => {
   delete req.query.limit;
   const skipCount = req.query.skip;
   delete req.query.skip;
+  if(req.query._id){
+    const ObjectId = require('mongodb').ObjectId;
+    req.query["_id"] = new ObjectId( req.query["_id"]);
+  }
   if(req.query.department){
     const ObjectId = require('mongodb').ObjectId;
     req.query["department"] = new ObjectId( req.query["department"]);
@@ -142,69 +145,72 @@ module.exports.updateComplaints = async (req, res, next) => {
         req.body.department,
         req.data.email
       );
-      req.body.assignedTo = newAdmin;
+      req.body.assignedTo = newAdmin.email;
     }
+    if(req.body.files){
     req.body.files = fileArray(req.files);
+    }
     const complaintData = await complaintService.updateComplaints(
       req.params,
       req.body
     );
     res.send(complaintData);
-    if (newAdmin) {
-      mail.sendMail(
-        complaint.email,
-        `Complaint updated having Issue ID: ${complaint.issueId}`,
-        {
-          heading: "",
-          content: `Hello<br/>Your complaint has been updated successfully and is assigned to
-                <span style="text-transform: capitalize>&nbsp;${newAdmin.name}</span> (${newAdmin.email}).`,
-          salutation: "thank you",
-          from: "to the new team",
-        }
-      );
-      mail.sendMail(
-        newAdmin.email,
-        `New complaint assigned with Issue ID: ${complaint.issueId}`,
-        {
-          heading: "",
-          content: `Hello<br/>You have been assigned a new complaint with Issue ID: ${complaint.issueId}.`,
-          salutation: "thank you",
-          from: "to the new team",
-        }
-      );
-      mail.sendMail(
-        complaint.assignedTo,
-        `Complaimt with Issue ID: ${complaint.issueId} has been reassigned`,
-        {
-          heading: "",
-          content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} has been reassigned. You are no longer concerned with it.`,
-          salutation: "thank you",
-          from: "to the new team",
-        }
-      );
-    } else {
-      mail.sendMail(
-        complaint.email,
-        `Complaint updated having Issue ID: ${complaint.issueId}`,
-        {
-          heading: "",
-          content: `Hello<br/>Your complaint has been updated successfully.`,
-          salutation: "thank you",
-          from: "to the new team",
-        }
-      );
-      mail.sendMail(
-        complaint.assignedTo,
-        `Issue ID: ${complaint.issueId} has been reassigned`,
-        {
-          heading: "",
-          content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} is updated. Login to view changes.`,
-          salutation: "thank you",
-          from: "to the new team",
-        }
-      );
-    }
+    // if (req.body.assignedTo) {
+    //   mail.sendMail(
+    //     complaint.email,
+    //     `Complaint updated having Issue ID: ${complaint.issueId}`,
+    //     {
+    //       heading: "",
+    //       content: `Hello<br/>Your complaint has been updated successfully and is assigned to
+    //             <span style="text-transform: capitalize>&nbsp;${req.body.assignedTo.name}</span> (${req.body.assignedTo.email}).`,
+    //       salutation: "thank you",
+    //       from: "to the new team",
+    //     }
+    //   );
+    //   mail.sendMail(
+    //     req.body.assignedTo.email,
+    //     `New complaint assigned with Issue ID: ${complaint.issueId}`,
+    //     {
+    //       heading: "",
+    //       content: `Hello<br/>You have been assigned a new complaint with Issue ID: ${complaint.issueId}.`,
+    //       salutation: "thank you",
+    //       from: "to the new team",
+    //     }
+    //   );
+    //   mail.sendMail(
+    //     complaint.assignedTo,
+    //     `Complaimt with Issue ID: ${complaint.issueId} has been reassigned`,
+    //     {
+    //       heading: "",
+    //       content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} has been reassigned. You are no longer concerned with it.`,
+    //       salutation: "thank you",
+    //       from: "to the new team",
+    //     }
+    //   );
+    // } else {
+    //   mail.sendMail(
+    //     complaint.email,
+    //     `Complaint updated having Issue ID: ${complaint.issueId}`,
+    //     {
+    //       heading: "",
+    //       content: `Hello<br/>Your complaint has been updated successfully.`,
+    //       salutation: "thank you",
+    //       from: "to the new team",
+    //     }
+    //   );
+    //   mail.sendMail(
+    //     complaint.assignedTo,
+    //     `Issue ID: ${complaint.issueId} has been reassigned`,
+    //     {
+    //       heading: "",
+    //       content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} is updated. Login to view changes.`,
+    //       salutation: "thank you",
+    //       from: "to the new team",
+    //     }
+    //   );
+    // }
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
