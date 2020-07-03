@@ -60,11 +60,31 @@ module.exports.updatePrivileges = async (email,updatedData) => {
 
 module.exports.getUsers = async (query, limit, skip) => {
   try {
-    const usersData = await users
-      .find(query)
-      .limit(limit ? limit : 0)
-      .skip(skip ? skip : 0);
-    return usersData;
+    const pipeline=[
+    {$match:query},
+    {
+      $lookup: {
+        from: "departments",
+        localField: "department",
+        foreignField: "_id",
+        as: "department",
+      },
+    },
+    {
+      $set: {
+        department: { $arrayElemAt: ["$department", 0] },
+      },
+    },
+    {
+      $skip: skip,
+    }
+  ]
+  if(limit) {
+    pipeline.push({ $limit: limit });
+  }
+  const userData = await users.aggregate(pipeline).exec();
+  return userData;
+
   } catch (err) {
     throw new ServerError("Error", 500);
   }
