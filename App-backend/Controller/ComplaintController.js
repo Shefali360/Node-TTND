@@ -147,7 +147,7 @@ module.exports.updateComplaints = async (req, res, next) => {
       );
       req.body.assignedTo = newAdmin.email;
     }
-    if(req.body.files){
+    if(req.files.length>0){
     req.body.files = fileArray(req.files);
     }
     const complaintData = await complaintService.updateComplaints(
