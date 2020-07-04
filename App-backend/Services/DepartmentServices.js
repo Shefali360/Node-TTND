@@ -26,14 +26,25 @@ module.exports.createDept=async(data)=>{
         .find(
           query
         )
-        .limit(limit ? limit : 0)
-        .skip(skip ? skip : 0);
       return department;
     } catch (err) {
       throw new ServerError("Error", 500);
     }
   };
   
+  module.exports.editDept=async({id},updatedData)=>{
+    try {
+        const response = await dept.findOneAndUpdate({_id:id},{$set:updatedData},{new:true,runValidators:true});
+        return response;
+        }catch(err){
+    if (err.name === "ValidationError") {
+        throw new DataValidationFailed(err.message, 500);
+      } else {
+        throw new ServerError("Error", 500);
+      }
+}
+}
+
 module.exports.findDept=async(query)=>{
   try{
     const department=await dept.findOne(query);

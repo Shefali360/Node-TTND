@@ -11,16 +11,20 @@ module.exports.createDept= async(req, res,next) => {
   };
 
   module.exports.getDept = async (req, res, next) => {
-    const limitCount = req.query.limit;
-    delete req.query.limit;
-    const skipCount = req.query.skip;
-    delete req.query.skip;
     try {
       const response = await deptService.getDept(
-        req.query,
-        Number(limitCount),Number(skipCount)
+        req.query
       );
       res.send(response);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  module.exports.editDept= async (req, res, next) => {
+    try {
+      const department= await deptService.editDept(req.params, req.body);
+      res.send(department);
     } catch (err) {
       next(err);
     }

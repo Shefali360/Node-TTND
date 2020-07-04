@@ -9,8 +9,9 @@ const departmentSchema=new Schema({
     }
 })
 
+
 departmentSchema.pre('save', function(next) {
-    this.department=this.department.toLowerCase();
+    this.department=this.department.toUpperCase();
     next();
 }
   );
