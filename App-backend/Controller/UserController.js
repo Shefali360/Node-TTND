@@ -36,7 +36,7 @@ module.exports.updateProfile = async (req, res, next) => {
 module.exports.updateProfilePicture = async (req, res, next) => {
   try {
     if (req.file) {
-      req.body.picture = req.file.path;
+      req.body.picture = req.file.filename;
     }
     const email = req.data.email;
     const userProfile = await usersService.updateProfile(email, {
