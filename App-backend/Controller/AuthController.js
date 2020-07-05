@@ -123,6 +123,7 @@ module.exports.signin = async (req, res, next) => {
     );
     return res.json(token["data"]);
   } catch (err) {
+    console.log(err);
     if (err.code === "UNAUTHORIZED_ACCESS_REQUEST") return next(err);
     return next(
       new invalidTokenCodeError(
