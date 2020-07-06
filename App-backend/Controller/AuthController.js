@@ -150,8 +150,7 @@ module.exports.handleLogout = async (req, res, next) => {
     next(
       new invalidTokenError(
         "Invalid token received or token has been expired",
-        401,
-        err.response.data
+        401
       )
     );
   }
