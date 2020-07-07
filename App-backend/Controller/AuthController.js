@@ -22,13 +22,17 @@ const userService = require("../Services/UserServices");
 const config = require("../../Config/Config");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
-const mail=require('../../Mails/Mails');
+const mail = require("../../Mails/Mails");
 
 dotenv.config();
 
 const downloadImage = async (path) => {
   const imageExtension = uuidv4() + "profilePic.jpg";
-  const imagePath = [process.cwd(), config.folders.ProfilePicture, imageExtension].join("/");
+  const imagePath = [
+    process.cwd(),
+    config.folders.ProfilePicture,
+    imageExtension,
+  ].join("/");
   const fileStream = fs.createWriteStream(imagePath);
   try {
     const imageData = await axios.request({
@@ -70,20 +74,20 @@ module.exports.signup = async (req, res, next) => {
     };
     let newUser = await userService.createUser(userProfile);
     delete newUser.__v;
-    newUser=newUser.toJSON();
+    newUser = newUser.toJSON();
     const userRoleCode = config.roles[newUser.role];
     token.data["id_token"] = jwt.sign(
       { ...newUser, roleCode: userRoleCode },
       process.env.CLIENT_SECRET
     );
     res.json(token["data"]);
-    mail.sendMail(newUser.email,"You have successfully signed up.",{
-      heading:`Hello ${newUser.name.split(' ')[0]},`,
-      content:`Welcome to "To The New" platform, login to view what's trending in you feed.
+    mail.sendMail(newUser.email, "You have successfully signed up.", {
+      heading: `Hello ${newUser.name.split(" ")[0]},`,
+      content: `Welcome to "To The New" platform, login to view what's trending in you feed.
       You are yet to be assigned a department, once that is done you can log your concerns and issues.`,
-      salutation: 'thank you',
-			from: 'to the new team'
-    })
+      salutation: "thank you",
+      from: "to the new team",
+    });
   } catch (err) {
     if (fileData) {
       fs.unlink(fileData.imagePath, () => {});
@@ -113,9 +117,9 @@ module.exports.signin = async (req, res, next) => {
     const userData = jwt.decode(token.data.id_token);
     let user = await userService.getUserByEmail(userData.email);
     if (!user) {
-     return next( new UnauthorizedAccess("user does not exist.", 401));
+      return next(new UnauthorizedAccess("user does not exist.", 401));
     }
-    user=user.toJSON();
+    user = user.toJSON();
     const userRoleCode = config.roles[user.role];
     token.data["id_token"] = jwt.sign(
       { ...user, roleCode: userRoleCode },
@@ -126,11 +130,7 @@ module.exports.signin = async (req, res, next) => {
     console.log(err);
     if (err.code === "UNAUTHORIZED_ACCESS_REQUEST") return next(err);
     return next(
-      new invalidTokenCodeError(
-        "Invalid code for token access request",
-        401,
-        err.response.data
-      )
+      new invalidTokenCodeError("Invalid code for token access request", 401)
     );
   }
 };

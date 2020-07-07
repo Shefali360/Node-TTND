@@ -61,7 +61,7 @@ module.exports.updatePrivileges = async (req, res, next) => {
     const email = req.params.email;
     const updatedData={
       ...(req.body.role&&{role:req.body.role}),
-      ...(req.body.department&&{department:req.body.department})
+      ...(req.body.department&&{department:req.body.department._id})
     }
     const userProfile = await usersService.updatePrivileges(email,updatedData);
     if(updatedData.role){
@@ -76,15 +76,15 @@ module.exports.updatePrivileges = async (req, res, next) => {
     res.send(id_token);
     mail.sendMail(email, `Your role has been modified..`, {
 			heading: `hello`,
-			content: `Your previous role has been changed to ${req.body.role}`,
+			content: `Your role has been changed to ${req.body.role}.`,
 			salutation: 'thank you',
 			from: 'to the new team'
     });
   }else{
     res.send(updatedData);
-    mail.sendMail(email, `You have been assigned a department,${req.body.department}`, {
+    mail.sendMail(email, `You have been assigned a department,${req.body.department.department}`, {
 			heading: `hello`,
-			content: `You have been set up with a department,${req.body.department}`,
+			content: `You have been set up with a department,${req.body.department.department}`,
 			salutation: 'thank you',
 			from: 'to the new team'
     });

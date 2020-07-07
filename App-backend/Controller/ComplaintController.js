@@ -51,7 +51,7 @@ module.exports.createComplaint = async (req, res, next) => {
     //   `Your complaint has been logged with ID: ${issueId}`,
     //   {
     //     heading: `hello ${myuserdata.name.split(" ")[0]}`,
-    //     content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>Your complaint has been assigned to <span style="text-transform: capitalize>&nbsp;${assignedTo.name}</span> (${assignedTo.email}).`,
+    //     content: `<span style="text-transform: capitalize">${req.body.issue}</span><br/><br/>Your complaint has been assigned to ${assignedTo.name}&nbsp;(${req.body.assignedTo}).`,
     //     salutation: "thank you",
     //     from: "to the new team",
     //   }
@@ -140,12 +140,14 @@ module.exports.updateComplaints = async (req, res, next) => {
       return next(new DataValidationFailed("Cannot modify these keys..", 403));
     }
     let newAdmin = null;
+    let assignedTo=null;
     if (req.body.department && complaint.department !== req.body.department) {
       newAdmin = await complaintService.assignAdmin(
         req.body.department,
         req.data.email
       );
       req.body.assignedTo = newAdmin.email;
+      assignedTo=newAdmin;
     }
     if(req.files.length>0){
     req.body.files = fileArray(req.files);
@@ -155,60 +157,59 @@ module.exports.updateComplaints = async (req, res, next) => {
       req.body
     );
     res.send(complaintData);
-    // if (req.body.assignedTo) {
-    //   mail.sendMail(
-    //     complaint.email,
-    //     `Complaint updated having Issue ID: ${complaint.issueId}`,
-    //     {
-    //       heading: "",
-    //       content: `Hello<br/>Your complaint has been updated successfully and is assigned to
-    //             <span style="text-transform: capitalize>&nbsp;${req.body.assignedTo.name}</span> (${req.body.assignedTo.email}).`,
-    //       salutation: "thank you",
-    //       from: "to the new team",
-    //     }
-    //   );
-    //   mail.sendMail(
-    //     req.body.assignedTo.email,
-    //     `New complaint assigned with Issue ID: ${complaint.issueId}`,
-    //     {
-    //       heading: "",
-    //       content: `Hello<br/>You have been assigned a new complaint with Issue ID: ${complaint.issueId}.`,
-    //       salutation: "thank you",
-    //       from: "to the new team",
-    //     }
-    //   );
-    //   mail.sendMail(
-    //     complaint.assignedTo,
-    //     `Complaimt with Issue ID: ${complaint.issueId} has been reassigned`,
-    //     {
-    //       heading: "",
-    //       content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} has been reassigned. You are no longer concerned with it.`,
-    //       salutation: "thank you",
-    //       from: "to the new team",
-    //     }
-    //   );
-    // } else {
-    //   mail.sendMail(
-    //     complaint.email,
-    //     `Complaint updated having Issue ID: ${complaint.issueId}`,
-    //     {
-    //       heading: "",
-    //       content: `Hello<br/>Your complaint has been updated successfully.`,
-    //       salutation: "thank you",
-    //       from: "to the new team",
-    //     }
-    //   );
-    //   mail.sendMail(
-    //     complaint.assignedTo,
-    //     `Issue ID: ${complaint.issueId} has been reassigned`,
-    //     {
-    //       heading: "",
-    //       content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} is updated. Login to view changes.`,
-    //       salutation: "thank you",
-    //       from: "to the new team",
-    //     }
-    //   );
-    // }
+    if (req.body.assignedTo) {
+      // mail.sendMail(
+      //   complaint.email,
+      //   `Complaint updated having Issue ID: ${complaint.issueId}`,
+      //   {
+      //     heading: "",
+      //     content: `Hello<br/>Your complaint has been updated successfully and is assigned to ${assignedTo.name}(${req.body.assignedTo}).`,
+      //     salutation: "thank you",
+      //     from: "to the new team",
+      //   }
+      // );
+      // mail.sendMail(
+      //   req.body.assignedTo,
+      //   `New complaint assigned with Issue ID: ${complaint.issueId}`,
+      //   {
+      //     heading: "",
+      //     content: `Hello<br/>You have been assigned a new complaint with Issue ID: ${complaint.issueId}.`,
+      //     salutation: "thank you",
+      //     from: "to the new team",
+      //   }
+      // );
+      // mail.sendMail(
+      //   complaint.assignedTo,
+      //   `Complaimt with Issue ID: ${complaint.issueId} has been reassigned`,
+      //   {
+      //     heading: "",
+      //     content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} has been reassigned. You are no longer concerned with it.`,
+      //     salutation: "thank you",
+      //     from: "to the new team",
+      //   }
+      // );
+    } else {
+      // mail.sendMail(
+      //   complaint.email,
+      //   `Complaint updated having Issue ID: ${complaint.issueId}`,
+      //   {
+      //     heading: "",
+      //     content: `Hello<br/>Your complaint has been updated successfully.`,
+      //     salutation: "thank you",
+      //     from: "to the new team",
+      //   }
+      // );
+      // mail.sendMail(
+      //   complaint.assignedTo,
+      //   `Issue ID: ${complaint.issueId} has been reassigned`,
+      //   {
+      //     heading: "",
+      //     content: `Hello<br/>Complaint with Issue ID: ${complaint.issueId} is updated. Login to view changes.`,
+      //     salutation: "thank you",
+      //     from: "to the new team",
+      //   }
+      // );
+    }
   } catch (err) {
     console.log(err);
     next(err);
@@ -336,18 +337,18 @@ module.exports.deleteComplaint = async (req, res, next) => {
     }
     const response = await complaintService.deleteComplaint(req.params);
     res.send(response);
-    mail.sendMail(complaint.email, `Complaint with Issue ID: ${complaint.issueId} has been deleted`, {
-			heading: `hello`,
-			content: `Your complaint with Issue ID: ${complaint.issueId} is deleted successfully.`,
-			salutation: 'thank you',
-			from: 'to the new team'
-		});
-		mail.sendMail(complaint.assignedTo, `Issue ID: ${complaint.issueId} is deleted.`, {
-			heading: `hello`,
-			content: `Complaint with Issue ID: ${complaint.issueId} has been deleted.`,
-			salutation: 'thank you',
-			from: 'to the new team'
-		});
+    // mail.sendMail(complaint.email, `Complaint with Issue ID: ${complaint.issueId} has been deleted`, {
+		// 	heading: `hello`,
+		// 	content: `Your complaint with Issue ID: ${complaint.issueId} is deleted successfully.`,
+		// 	salutation: 'thank you',
+		// 	from: 'to the new team'
+		// });
+		// mail.sendMail(complaint.assignedTo, `Issue ID: ${complaint.issueId} is deleted.`, {
+		// 	heading: `hello`,
+		// 	content: `Complaint with Issue ID: ${complaint.issueId} has been deleted.`,
+		// 	salutation: 'thank you',
+		// 	from: 'to the new team'
+		// });
   } catch (err) {
     res.status(500).send(err);
   }

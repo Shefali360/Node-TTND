@@ -107,7 +107,6 @@ module.exports.getComplaints = async (query, limit, skip) => {
             picture: 0,
             dob: 0,
             phone: 0,
-            role: 0,
             department: 0,
           },
           department: {
