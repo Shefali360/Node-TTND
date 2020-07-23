@@ -6,7 +6,7 @@ const multer = require("multer");
 const imageUpload = multer({
   storage: midware.fileStorage('./Images/'),
   limits: {
-    fileSize: 1024 * 1024 * 5,
+    fileSize: 1024 * 1024,
   },
   fileFilter: midware.imageFileFilter,
 });
