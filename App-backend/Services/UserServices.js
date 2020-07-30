@@ -100,6 +100,38 @@ module.exports.getUserByEmail=async(email)=>{
   }
 }
 
+
+module.exports.followUser=async(email,mailId)=>{
+
+  try {
+         const response= await users.findOneAndUpdate({email}, {
+              $push: {
+                  followed:mailId
+              }
+          });
+        return response;
+  } catch (err) {
+    console.log(err);
+    throw new ServerError("Error", 500);
+  }
+}
+
+module.exports.unfollowUser=async(email,mailId)=>{
+ 
+  try {
+         const response= await users.findOneAndUpdate({email}, {
+              $pull: {
+                  followed:mailId
+              }
+          });
+        return response;
+  } catch (err) {
+    console.log(err);
+    throw new ServerError("Error", 500);
+  }
+}
+
+
 module.exports.deleteUser = async (email) => {
   try {
     const response = await users.deleteOne({

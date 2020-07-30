@@ -32,6 +32,10 @@ const usersSchema=new Schema({
         },
         message:'Invalid department value.'
     },
+    followed:{
+        type:[String],
+        default:[]
+    },
     dob:{
         type:Date
     },
