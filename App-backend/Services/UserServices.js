@@ -6,19 +6,21 @@ const {
 const {
   UnauthorizedAccess,
 } = require("../../ErrorHandler/Admin/AdminExceptions");
-const {DuplicateKey} = require('../../ErrorHandler/Validation/ValidationExceptions');
+const {
+  DuplicateKey,
+} = require("../../ErrorHandler/Validation/ValidationExceptions");
 
 module.exports.createUser = async (data) => {
-  const user=new users(data);
+  const user = new users(data);
   try {
-    await user.save();      
+    await user.save();
     return user;
   } catch (err) {
-    if(err.name === "ValidationError") {
+    if (err.name === "ValidationError") {
       throw new DataValidationFailed(err.message, 500);
-    } else  if(err.code===11000){
+    } else if (err.code === 11000) {
       throw new DuplicateKey(err.message, 400);
-    }else{
+    } else {
       throw new ServerError("Error", 500);
     }
   }
@@ -41,12 +43,12 @@ module.exports.updateProfile = async (email, updatedData) => {
   }
 };
 
-module.exports.updatePrivileges = async (email,updatedData) => {
+module.exports.updatePrivileges = async (email, updatedData) => {
   try {
     const update = await users.findOneAndUpdate(
-      {email:email},
-      { $set:updatedData },
-      { new: true, runValidators: true}
+      { email: email },
+      { $set: updatedData },
+      { new: true, runValidators: true }
     );
     return update.toJSON();
   } catch (err) {
@@ -60,82 +62,77 @@ module.exports.updatePrivileges = async (email,updatedData) => {
 
 module.exports.getUsers = async (query, limit, skip) => {
   try {
-    const pipeline=[
-    {$match:query},
-    {
-      $lookup: {
-        from: "departments",
-        localField: "department",
-        foreignField: "_id",
-        as: "department",
+    const pipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: "departments",
+          localField: "department",
+          foreignField: "_id",
+          as: "department",
+        },
       },
-    },
-    {
-      $set: {
-        department: { $arrayElemAt: ["$department", 0] },
+      {
+        $set: {
+          department: { $arrayElemAt: ["$department", 0] },
+        },
       },
-    },
-    {
-      $skip: skip,
+      {
+        $skip: skip,
+      },
+    ];
+    if (limit) {
+      pipeline.push({ $limit: limit });
     }
-  ]
-  if(limit) {
-    pipeline.push({ $limit: limit });
-  }
-  const userData = await users.aggregate(pipeline).exec();
-  return userData;
-
+    const userData = await users.aggregate(pipeline).exec();
+    return userData;
   } catch (err) {
     throw new ServerError("Error", 500);
   }
 };
 
-
-module.exports.getUserByEmail=async(email)=>{
+module.exports.getUserByEmail = async (email) => {
   try {
-    const response = await users.findOne({email:email});
+    const response = await users.findOne({ email: email });
     return response;
   } catch (err) {
     throw new ServerError("Error", 500);
   }
-}
+};
 
-
-module.exports.followUser=async(email,mailId)=>{
-
+module.exports.followOrUnfollowUser = async (email, name,reverse) => {
   try {
-         const response= await users.findOneAndUpdate({email}, {
-              $push: {
-                  followed:mailId
-              }
-          });
-        return response;
+    let response=null;
+    if (reverse) {
+       response = await users.findOneAndUpdate(
+        { email },
+        {
+          $pull: {
+            followed: name,
+          },
+        }
+      );
+    } else {
+       response = await users.findOneAndUpdate(
+        { email },
+        {
+          $push: {
+            followed: name,
+          },
+        }
+      );
+    }
+    return response;
   } catch (err) {
     console.log(err);
     throw new ServerError("Error", 500);
   }
-}
-
-module.exports.unfollowUser=async(email,mailId)=>{
- 
-  try {
-         const response= await users.findOneAndUpdate({email}, {
-              $pull: {
-                  followed:mailId
-              }
-          });
-        return response;
-  } catch (err) {
-    console.log(err);
-    throw new ServerError("Error", 500);
-  }
-}
-
+};
 
 module.exports.deleteUser = async (email) => {
   try {
     const response = await users.deleteOne({
-      email:email,
+      email: email,
     });
     return response;
   } catch (err) {

@@ -35,6 +35,5 @@ router.delete(
   midware.checkPrivileges("SuperAdmin"),
   user.deleteUser
 );
-router.patch("/follow/:email",midware.verifyTokenToGetUserData,user.followUser);
-router.patch("/unfollow/:email",midware.verifyTokenToGetUserData,user.unfollowUser);
+router.patch("/followorunfollow/:name",midware.verifyTokenToGetUserData,user.followOrUnfollowUser);
 module.exports = router;

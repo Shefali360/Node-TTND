@@ -115,26 +115,13 @@ module.exports.getUsers = async (req, res, next) => {
   }
 };
 
-module.exports.followUser = async (req, res, next) => {
+module.exports.followOrUnfollowUser = async (req, res, next) => {
   try {
     const email = req.data.email;
-    const response = await usersService.followUser(
+    const response = await usersService.followOrUnfollowUser(
       email,
-      req.params.email
-    );
-    res.send(response);
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
-};
-
-module.exports.unfollowUser = async (req, res, next) => {
-  try {
-    const email = req.data.email;
-    const response = await usersService.unfollowUser(
-      email,
-      req.params.email
+      req.params.name,
+      req.query.reverse
     );
     res.send(response);
   } catch (err) {
