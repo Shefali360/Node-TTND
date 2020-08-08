@@ -100,7 +100,7 @@ module.exports.getUserByEmail = async (email) => {
   }
 };
 
-module.exports.followOrUnfollowUser = async (email, name,reverse) => {
+module.exports.followOrUnfollowUser = async (email, mailId,reverse) => {
   try {
     let response=null;
     if (reverse) {
@@ -108,7 +108,7 @@ module.exports.followOrUnfollowUser = async (email, name,reverse) => {
         { email },
         {
           $pull: {
-            followed: name,
+            followed: mailId,
           },
         }
       );
@@ -117,7 +117,7 @@ module.exports.followOrUnfollowUser = async (email, name,reverse) => {
         { email },
         {
           $push: {
-            followed: name,
+            followed: mailId,
           },
         }
       );

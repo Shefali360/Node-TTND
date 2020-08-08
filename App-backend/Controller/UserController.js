@@ -120,7 +120,7 @@ module.exports.followOrUnfollowUser = async (req, res, next) => {
     const email = req.data.email;
     const response = await usersService.followOrUnfollowUser(
       email,
-      req.params.name,
+      req.params.email,
       req.query.reverse
     );
     res.send(response);
