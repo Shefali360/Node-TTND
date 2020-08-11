@@ -50,6 +50,7 @@ module.exports.getBuzz = async (req, res, next) => {
     );
     res.send(response);
   } catch (err) {
+
     return next(new ServerError("Error", 500));
   }
 };

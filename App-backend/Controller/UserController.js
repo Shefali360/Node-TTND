@@ -19,6 +19,7 @@ module.exports.updateProfile = async (req, res, next) => {
     delete req.body.picture;
     const email = req.data.email;
     const userProfile = await usersService.updateProfile(email, req.body);
+    console.log(userProfile);
     const userRoleCode = userRole.roles[userProfile.role];
     const id_token = jwt.sign(
       {
@@ -123,7 +124,15 @@ module.exports.followOrUnfollowUser = async (req, res, next) => {
       req.params.email,
       req.query.reverse
     );
-    res.send(response);
+    const userRoleCode = userRole.roles[response.role];
+    const id_token = jwt.sign(
+        {
+         ...response,
+         roleCode: userRoleCode
+        },
+        process.env.CLIENT_SECRET
+      );
+    res.send(id_token);
   } catch (err) {
     console.log(err);
     next(err);

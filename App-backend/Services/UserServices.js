@@ -110,7 +110,8 @@ module.exports.followOrUnfollowUser = async (email, mailId,reverse) => {
           $pull: {
             followed: mailId,
           },
-        }
+        },
+        {new:true}
       );
     } else {
        response = await users.findOneAndUpdate(
@@ -119,10 +120,11 @@ module.exports.followOrUnfollowUser = async (email, mailId,reverse) => {
           $push: {
             followed: mailId,
           },
-        }
+        },
+        {new:true}
       );
     }
-    return response;
+    return response.toJSON();
   } catch (err) {
     console.log(err);
     throw new ServerError("Error", 500);

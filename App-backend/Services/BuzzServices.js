@@ -19,8 +19,9 @@ module.exports.createBuzz=async(data)=>{
 
 module.exports.getBuzz = async (email,query,limit,skip) => {
   try{
-    const pipeline=[
-        {$match:query},
+    let pipeline=[];
+   pipeline=[
+        Array.isArray(query.userId)?{$match:{userId:{$in:query.userId}}}:{$match:query},
         {
             $addFields: {
                 liked: { $in: [email, "$likedBy"] },
@@ -63,7 +64,6 @@ module.exports.getBuzz = async (email,query,limit,skip) => {
             $skip: skip
         }
     ];
-
     if(limit){
         pipeline.push({$limit:limit})
     }
