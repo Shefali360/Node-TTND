@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Shefali360/TTND-BUZZ#readme",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "custom-id": "^1.2.0",
     "dotenv": "^8.2.0",
